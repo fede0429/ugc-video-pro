@@ -1,0 +1,89 @@
+version: '3.8'
+
+# ============================================================
+# UGC Video Pro - Docker Compose
+# ============================================================
+# Quick start:
+#   1. cp .env.example .env && nano .env       # Fill API keys
+#   2. cp config.example.yaml config.yaml      # Edit config
+#   3. docker compose up -d                    # Start
+#   4. docker compose logs -f                  # Watch logs
+#   5. docker compose down                     # Stop
+# ============================================================
+
+services:
+  ugc-video-pro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: ugc-video-pro:latest
+    container_name: ugc-video-pro
+
+    # Load environment variables from .env file
+    env_file:
+      - .env
+
+    # Mount configuration and credentials
+    volumes:
+      # Config file (required)
+      - ./config.yaml:/app/config.yaml:ro
+
+      # Google Drive credentials (optional)
+      # Comment out if not using Google Drive
+      - ./credentials.json:/app/credentials.json:ro
+
+      # Persistent video storage
+      - ugc_videos:/tmp/ugc_videos
+
+      # Log output (optional)
+      - ugc_logs:/app/logs
+
+    # Restart policy for production
+    restart: unless-stopped
+
+    # Resource limits (adjust for your VPS)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import bot; import core; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    # Environment overrides (can also be in .env)
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+
+# ── Named Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  ugc_videos:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/videos
+
+  ugc_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/logs
