@@ -1,0 +1,45 @@
+# UGC Video Pro - Python Dependencies
+# =====================================
+# Install: pip install -r requirements.txt
+# Requires Python 3.11+
+
+# Telegram Bot
+python-telegram-bot[asyncio]>=20.7,<22.0
+
+# HTTP client (async)
+aiohttp>=3.9.0,<4.0
+
+# Google AI (Gemini for script gen + image analysis)
+google-generativeai>=0.8.0
+
+# Google Drive API
+google-api-python-client>=2.140.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.2.0
+
+# YAML configuration
+pyyaml>=6.0.1
+
+# Image processing
+Pillow>=10.2.0
+
+# Environment variables
+python-dotenv>=1.0.1
+
+# URL content extraction
+beautifulsoup4>=4.12.0
+html2text>=2024.1.0
+lxml>=5.1.0
+requests>=2.31.0
+
+# Async utilities
+asyncio-throttle>=1.0.2
+
+# Progress tracking
+tqdm>=4.66.0
+
+# Retry logic
+tenacity>=8.2.3
+
+# Type hints (backport for older Python)
+typing-extensions>=4.9.0
