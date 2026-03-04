@@ -2,24 +2,55 @@
 # UGC Video Pro - Configuration Template
 # ============================================================
 # Copy this file to config.yaml and fill in your API keys.
-# Values starting with ${ } are resolved from environment variables.
+# Values in ${ } are resolved from environment variables.
+# Syntax: ${VAR} or ${VAR:-default_value}
 #
 # Priority: environment variables > this file
 # ============================================================
 
-# ── Telegram Bot ───────────────────────────────────────────────────────────
-telegram:
-  # Get your token from @BotFather on Telegram
-  bot_token: "${TELEGRAM_BOT_TOKEN}"
 
-  # Allowed user IDs (integers). Empty list = all users allowed.
-  # Example: allowed_users: [123456789, 987654321]
-  allowed_users: []
+# ── Web Application ─────────────────────────────────────────────
+web:
+  # Host and port for the FastAPI server
+  host: "0.0.0.0"
+  port: 8000
 
-  # Maximum concurrent video generation jobs per user
-  max_concurrent_jobs: 2
+  # CORS origins — restrict to your domain in production
+  # Example: ["https://ugcvideo.pro", "https://www.ugcvideo.pro"]
+  cors_origins: ["*"]
 
-# ── AI Model API Keys ─────────────────────────────────────────────────────────────
+  # Uploaded image storage (persisted via Docker volume)
+  upload_dir: "/app/data/uploads"
+
+  # Generated video storage (persisted via Docker volume)
+  video_dir: "/app/data/videos"
+
+
+# ── Database ─────────────────────────────────────────────────────────
+database:
+  # Async PostgreSQL URL (via asyncpg driver)
+  # Format: postgresql+asyncpg://user:password@host:port/dbname
+  url: "${DATABASE_URL}"
+
+
+# ── Authentication ──────────────────────────────────────────────────
+auth:
+  # Secret key for signing JWT tokens — MUST be set in production
+  jwt_secret: "${JWT_SECRET}"
+
+  # Access token lifetime (short-lived)
+  access_token_expire_minutes: 30
+
+  # Refresh token lifetime (long-lived, stored client-side)
+  refresh_token_expire_days: 7
+
+  # Default admin account created on first startup.
+  # Change these immediately after first login!
+  admin_email: "${ADMIN_EMAIL:-admin@ugcvideo.pro}"
+  admin_password: "${ADMIN_PASSWORD:-changeme123}"
+
+
+# ── AI Model API Keys ─────────────────────────────────────────────
 models:
   openai:
     # https://platform.openai.com/api-keys
@@ -34,7 +65,8 @@ models:
     api_key: "${SEEDANCE_API_KEY}"
     base_url: "https://api.seedance.ai/v1"
 
-# ── Google Gemini (script generation + image analysis) ────────────────────────────
+
+# ── Google Gemini (script generation + image analysis) ────────
 gemini:
   api_key: "${GOOGLE_API_KEY}"
   # Model for script generation and image analysis
@@ -42,7 +74,8 @@ gemini:
   # Fallback model
   fallback_model: "gemini-1.5-flash"
 
-# ── Google Drive (optional, for cloud storage) ──────────────────────────────────────
+
+# ── Google Drive (optional, for cloud storage) ──────────────────
 google_drive:
   # Path to service account JSON or OAuth credentials file
   # Leave empty to disable Google Drive upload
@@ -52,7 +85,8 @@ google_drive:
   # Whether to make uploaded files publicly accessible
   make_public: true
 
-# ── Video Settings ──────────────────────────────────────────────────────────────
+
+# ── Video Settings ────────────────────────────────────────────────
 video:
   # Local directory for temporary/output video files
   output_dir: "/tmp/ugc_videos"
@@ -69,13 +103,11 @@ video:
   # FFmpeg encoding settings
   video_codec: "libx264"
   audio_codec: "aac"
-  crf: 23           # Quality: lower = better (18-28 range)
+  crf: 23           # Quality: lower = better (18–28 range)
   preset: "fast"    # Encoding speed: ultrafast, fast, medium, slow
 
-  # Maximum file size to send via Telegram (bytes). 50MB default.
-  telegram_max_size: 52428800
 
-# ── Polling Settings (for async model APIs) ─────────────────────────────────────────
+# ── Polling Settings (for async model APIs) ─────────────────────
 polling:
   # How often to check if a job is done (seconds)
   sora_interval: 60
@@ -88,7 +120,8 @@ polling:
   # Exponential backoff multiplier
   backoff_factor: 1.5
 
-# ── Frame Chaining Settings ───────────────────────────────────────────────────────────
+
+# ── Frame Chaining Settings ─────────────────────────────────────────
 frame_chaining:
   # Extract frame this many seconds from the end of each clip
   extract_offset: 0.1   # seconds before end
@@ -100,16 +133,18 @@ frame_chaining:
   add_continuation_prefix: true
   continuation_prefix: "Seamlessly continuing from the previous frame: "
 
-# ── URL Extraction Settings ──────────────────────────────────────────────────────────
+
+# ── URL Extraction Settings ────────────────────────────────────────
 url_extraction:
   # Request timeout in seconds
   timeout: 30
   # Maximum content length to extract (characters)
   max_length: 8000
   # User agent for HTTP requests
-  user_agent: "Mozilla/5.0 (compatible; UGCVideoBot/1.0)"
+  user_agent: "Mozilla/5.0 (compatible; UGCVideoPro/2.0)"
 
-# ── Default Generation Preferences ───────────────────────────────────────────────
+
+# ── Default Generation Preferences ───────────────────────────────
 defaults:
   # Default model if not specified
   model: "veo_3"
@@ -118,7 +153,8 @@ defaults:
   # Default output language
   language: "zh"
 
-# ── Logging ───────────────────────────────────────────────────────────────────
+
+# ── Logging ──────────────────────────────────────────────────────────
 # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 log_level: "${LOG_LEVEL:-INFO}"
 

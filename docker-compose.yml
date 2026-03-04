@@ -1,89 +1,172 @@
-version: '3.8'
-
 # ============================================================
 # UGC Video Pro - Docker Compose
 # ============================================================
+# Services:
+#   app      — FastAPI web application (port 8000 internal)
+#   db       — PostgreSQL 16 database
+#   nginx    — Reverse proxy with SSL termination (ports 80/443)
+#   certbot  — Let's Encrypt certificate auto-renewal
+#
 # Quick start:
-#   1. cp .env.example .env && nano .env       # Fill API keys
-#   2. cp config.example.yaml config.yaml      # Edit config
-#   3. docker compose up -d                    # Start
-#   4. docker compose logs -f                  # Watch logs
-#   5. docker compose down                     # Stop
+#   1. cp .env.example .env && nano .env           # Fill secrets
+#   2. cp config.example.yaml config.yaml          # Edit config
+#   3. bash scripts/init-ssl.sh your-domain.com your@email.com
+#   4. docker compose up -d                        # Start all
+#   5. docker compose logs -f app                  # Watch logs
+#   6. docker compose down                         # Stop all
 # ============================================================
 
 services:
-  ugc-video-pro:
+
+  # ── FastAPI Application ──────────────────────────────────────────
+  app:
     build:
       context: .
       dockerfile: Dockerfile
       target: runtime
     image: ugc-video-pro:latest
-    container_name: ugc-video-pro
+    container_name: ugc-video-pro-app
 
-    # Load environment variables from .env file
+    # Load all secrets and settings from .env
     env_file:
       - .env
 
-    # Mount configuration and credentials
+    # Explicit environment overrides
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+
     volumes:
-      # Config file (required)
+      # Application config (read-only)
       - ./config.yaml:/app/config.yaml:ro
-
-      # Google Drive credentials (optional)
-      # Comment out if not using Google Drive
+      # Google Drive service account credentials (read-only, optional)
+      # Comment out if Google Drive upload is not used
       - ./credentials.json:/app/credentials.json:ro
+      # Persistent data volume: uploads + generated videos
+      - ugc_data:/app/data
 
-      # Persistent video storage
-      - ugc_videos:/tmp/ugc_videos
+    depends_on:
+      db:
+        condition: service_healthy
 
-      # Log output (optional)
-      - ugc_logs:/app/logs
-
-    # Restart policy for production
     restart: unless-stopped
 
-    # Resource limits (adjust for your VPS)
+    # Resource limits — adjust to match your VPS capacity
     deploy:
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 2G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
 
-    # Logging configuration
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "5"
 
-    # Health check
+    # Health check mirrors the Dockerfile HEALTHCHECK
     healthcheck:
-      test: ["CMD", "python", "-c", "import bot; import core; print('OK')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 30s
 
-    # Environment overrides (can also be in .env)
+
+  # ── PostgreSQL Database ───────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: ugc-video-pro-db
+
     environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # Tuning: write-ahead log for reliability
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
 
-# ── Named Volumes ──────────────────────────────────────────────────────────────────
+    volumes:
+      # Persistent database storage
+      - pgdata:/var/lib/postgresql/data
+
+    restart: unless-stopped
+
+    # Database health check used by the app's depends_on condition
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+
+  # ── Nginx Reverse Proxy ───────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: ugc-video-pro-nginx
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      # Nginx site configuration (see nginx.conf)
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Let's Encrypt certificates (managed by certbot service)
+      - ./certbot/conf:/etc/letsencrypt:ro
+      # ACME challenge directory for certificate renewals
+      - ./certbot/www:/var/www/certbot:ro
+
+    depends_on:
+      - app
+
+    restart: unless-stopped
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+
+  # ── Certbot (Let's Encrypt SSL) ───────────────────────────────────
+  certbot:
+    image: certbot/certbot
+    container_name: ugc-video-pro-certbot
+
+    volumes:
+      # Certificates storage (shared with nginx)
+      - ./certbot/conf:/etc/letsencrypt
+      # ACME challenge directory (shared with nginx)
+      - ./certbot/www:/var/www/certbot
+
+    # Runs a renewal loop every 12 hours.
+    # certbot renew is a no-op if the certificate is still valid.
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done;"
+
+    restart: unless-stopped
+
+
+# ── Named Volumes ─────────────────────────────────────────────────────
 volumes:
-  ugc_videos:
+  # PostgreSQL data — survives container restarts and upgrades
+  pgdata:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data/videos
 
-  ugc_logs:
+  # Application data: user uploads + generated videos
+  ugc_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data/logs
