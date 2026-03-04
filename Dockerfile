@@ -26,13 +26,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /build
 
+# Create a virtual environment for clean dependency isolation
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
 # Copy requirements first to leverage Docker layer cache.
 # Re-running pip install only when requirements.txt changes.
 COPY requirements.txt .
 
-# Install all Python dependencies into /root/.local
-# --user keeps them separate from the system Python
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Install all Python dependencies into the venv
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 # ── Stage 2: Runtime ───────────────────────────────────────────────
@@ -54,8 +57,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create a dedicated non-root user for security
 RUN groupadd -r ugcapp && useradd -r -g ugcapp -s /bin/false ugcapp
 
-# Copy compiled Python packages from the builder stage
-COPY --from=builder /root/.local /root/.local
+# Copy the virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+
+# Activate the virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Set application working directory
 WORKDIR /app
@@ -73,7 +79,6 @@ RUN mkdir -p /app/data/uploads /app/data/videos \
 RUN mkdir -p /tmp/ugc_videos && chown ugcapp:ugcapp /tmp/ugc_videos
 
 # Python runtime environment
-ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
