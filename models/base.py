@@ -27,9 +27,9 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-# ───────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # Data structures
-# ───────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 
 @dataclass
 class GenerationJob:
@@ -55,9 +55,9 @@ class GenerationResult:
     elapsed_seconds: float
 
 
-# ───────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # Model max duration registry
-# ───────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 
 MODEL_MAX_DURATIONS = {
     "sora_2": 12,
@@ -74,9 +74,49 @@ def get_model_max_duration(model: str) -> int:
     return MODEL_MAX_DURATIONS.get(model, 8)
 
 
-# ───────────────────────────────────────────────────────────────
+def get_valid_duration_multiples(model: str, max_total: int = 120, count: int = 5) -> list[int]:
+    """Generate a list of valid duration multiples for a model.
+    
+    Args:
+        model: Model key
+        max_total: Maximum total duration to include
+        count: Number of multiples to generate
+    
+    Returns:
+        List of valid durations (e.g. [8, 16, 24, 32, 40] for 8s model)
+    """
+    max_clip = get_model_max_duration(model)
+    multiples = []
+    n = 1
+    while len(multiples) < count:
+        val = max_clip * n
+        if val > max_total:
+            break
+        multiples.append(val)
+        n += 1
+    return multiples
+
+
+def nearest_valid_duration(model: str, value: int) -> int:
+    """Find the nearest valid duration (multiple of model max clip).
+    
+    Args:
+        model: Model key
+        value: User-entered duration in seconds
+    
+    Returns:
+        Nearest multiple of model's max_duration (minimum = max_duration)
+    """
+    max_clip = get_model_max_duration(model)
+    if value <= 0:
+        return max_clip
+    rounded = round(value / max_clip) * max_clip
+    return max(rounded, max_clip)
+
+
+# ─────────────────────────────────────────────────────────────
 # Abstract base class
-# ───────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 
 class VideoModelAdapter(ABC):
     """Abstract base for all video generation model adapters.
@@ -95,7 +135,7 @@ class VideoModelAdapter(ABC):
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._poll_config = config.get("polling", {})
 
-    # ── Properties to override ────────────────────────────────────────────────────────
+    # ── Properties to override ──────────────────────────────
 
     @property
     @abstractmethod
@@ -122,7 +162,7 @@ class VideoModelAdapter(ABC):
         """Whether this model accepts a reference image."""
         return True
 
-    # ── Abstract methods ────────────────────────────────────────────────────────────
+    # ── Abstract methods ────────────────────────────────────
 
     @abstractmethod
     async def generate(
@@ -166,7 +206,7 @@ class VideoModelAdapter(ABC):
             Absolute path to downloaded video file.
         """
 
-    # ── Segment calculation ───────────────────────────────────────────────────────────
+    # ── Segment calculation ─────────────────────────────────
 
     def calculate_segments(self, target_duration: int) -> list[int]:
         """Calculate segment durations for a target total duration.
@@ -199,7 +239,7 @@ class VideoModelAdapter(ABC):
         )
         return durations
 
-    # ── Poll until complete ───────────────────────────────────────────────────────────
+    # ── Poll until complete ─────────────────────────────────
 
     async def poll_until_complete(
         self,
@@ -257,7 +297,7 @@ class VideoModelAdapter(ABC):
             f"({max_retries * poll_interval / 60:.1f} min)"
         )
 
-    # ── Full generate-and-download ────────────────────────────────────────────────────────
+    # ── Full generate-and-download ──────────────────────────
 
     async def generate_and_download(
         self,
