@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!--
+  ___  ___  ___  _    _  _
+ | _ \| __|| _ \| |  | \/ |
+ |  _/| _| |   /| |__|> <
+ |_|  |___||_|_\|____|/_/\_\
+ Perplexity Computer — https://www.perplexity.ai/computer
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>注册 — UGC Video Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card" style="max-width:440px;">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none" aria-label="UGC Video Pro" style="height:30px;width:auto;">
+        <rect x="2" y="8" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="2" y="17" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="2" y="26" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="6" y="5" width="28" height="30" rx="3" fill="#6366f1"/>
+        <path d="M15 13L15 27L26 20Z" fill="white"/>
+        <rect x="34" y="8" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="34" y="17" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="34" y="26" width="4" height="5" rx="1" fill="#6366f1"/>
+        <text x="46" y="26" font-family="Inter, system-ui, sans-serif" font-size="17" font-weight="700" fill="currentColor" letter-spacing="-0.3">UGC Video Pro</text>
+      </svg>
+    </div>
+
+    <h1 class="auth-title">创建账户</h1>
+    <p class="auth-subtitle">使用邀请码注册新账户</p>
+
+    <!-- Error/success messages -->
+    <div id="registerError"   class="auth-error"   role="alert"></div>
+    <div id="registerSuccess" class="auth-success" role="status"></div>
+
+    <form id="registerForm" class="auth-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">邮筱地址</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          placeholder="your@email.com"
+          autocomplete="email"
+          required
+        >
+        <span class="form-error" id="emailError"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="displayName">显示名称</label>
+        <input
+          type="text"
+          id="displayName"
+          name="displayName"
+          class="form-input"
+          placeholder="您的姓名或昵称"
+          autocomplete="name"
+          required
+          minlength="2"
+          maxlength="50"
+        >
+        <span class="form-error" id="displayNameError"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">密码</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="至少8位字符"
+          autocomplete="new-password"
+          required
+          minlength="8"
+        >
+        <span class="form-error" id="passwordError"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">确认密码</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          class="form-input"
+          placeholder="再次输入密码"
+          autocomplete="new-password"
+          required
+        >
+        <span class="form-error" id="confirmPasswordError"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inviteCode">邀请码</label>
+        <input
+          type="text"
+          id="inviteCode"
+          name="inviteCode"
+          class="form-input"
+          placeholder="输入邀请码"
+          autocomplete="off"
+          required
+          style="letter-spacing:0.05em;text-transform:uppercase;"
+        >
+        <span class="form-hint">需要有效的邀请码才能注册</span>
+        <span class="form-error" id="inviteCodeError"></span>
+      </div>
+
+      <button type="submit" id="registerBtn" class="btn btn-primary btn-full btn-lg">
+        <span id="registerBtnText">创建账户</span>
+        <span id="registerSpinner" class="spinner" style="display:none;"></span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      已有账户？
+      <a href="login.html">立即登录</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  AuthPage.initRegister();
+</script>
+</body>
+</html>
