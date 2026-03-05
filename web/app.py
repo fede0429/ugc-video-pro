@@ -181,6 +181,14 @@ def create_app(config: dict | None = None) -> FastAPI:
     async def health() -> dict:
         return {"status": "ok", "version": api_version}
 
+    # ── Media files (uploaded images, served as HTTP URLs) ──────────────────────────────
+    # This allows local file paths to be converted to HTTP URLs for APIs
+    # that reject base64 data URLs (e.g., Kling 3.0, Hailuo).
+    uploads_dir = DATA_ROOT / "uploads"
+    if uploads_dir.exists():
+        app.mount("/api/media", StaticFiles(directory=str(uploads_dir)), name="media")
+        logger.info(f"Serving media files from {uploads_dir} at /api/media/")
+
     # ── Static files (SPA frontend) ──────────────────────────────────────────────────────
     # Mount last so it doesn't shadow the API routes.
     static_dir = Path(os.environ.get("STATIC_DIR", "/app/static"))
