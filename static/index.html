@@ -15,6 +15,1091 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="css/style.css">
+<style>
+/* ── New Wizard: Multi-image upload grid ── */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+@media (max-width: 640px) {
+  .upload-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.upload-slot {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  gap: var(--sp-1);
+}
+.upload-slot:hover, .upload-slot.drag-over {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.08);
+}
+.upload-slot.primary {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.upload-slot.has-file {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.upload-slot .slot-label {
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  position: absolute;
+  top: 4px;
+  left: 6px;
+}
+.upload-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  position: absolute;
+  top: 0; left: 0;
+  border-radius: calc(var(--radius) - 2px);
+}
+.upload-slot.has-file img {
+  display: block;
+}
+.upload-slot.has-file .slot-add-icon,
+.upload-slot.has-file .slot-add-text {
+  display: none;
+}
+.upload-slot .slot-remove {
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.65);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  z-index: 2;
+}
+.upload-slot.has-file .slot-remove {
+  display: flex;
+}
+.upload-slot .slot-add-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ── Quality tier grid ── */
+.quality-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+@media (max-width: 600px) {
+  .quality-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.quality-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.quality-card:hover {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.06);
+}
+.quality-card.selected {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.1);
+}
+.quality-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.quality-card-title {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+.quality-card-desc {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.quality-card-price {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: auto;
+}
+.quality-card.selected .quality-card-title {
+  color: var(--accent);
+}
+
+/* ── Advanced model toggle ── */
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  user-select: none;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-2) 0;
+  border: none;
+  background: none;
+}
+.advanced-toggle:hover { color: var(--accent); }
+.advanced-toggle svg { flex-shrink: 0; transition: transform 0.2s; }
+.advanced-toggle.open svg { transform: rotate(180deg); }
+.advanced-models-wrap {
+  display: none;
+  margin-bottom: var(--sp-4);
+}
+.advanced-models-wrap.open {
+  display: block;
+}
+
+/* ── Language checkboxes ── */
+.lang-check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.lang-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+.lang-checkbox input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.lang-checkbox:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.09);
+}
+
+/* ── Duration presets ── */
+.duration-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+/* ── Pipeline progress ── */
+.pipeline-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: var(--sp-4) 0;
+}
+.pipeline-stage {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  position: relative;
+  padding-bottom: var(--sp-3);
+}
+.pipeline-stage:last-child {
+  padding-bottom: 0;
+}
+.pipeline-stage-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 36px;
+  flex-shrink: 0;
+}
+.pipeline-stage-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  position: relative;
+  z-index: 1;
+  transition: border-color 0.3s, background 0.3s;
+  flex-shrink: 0;
+}
+.pipeline-stage-line {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  background: var(--border);
+  margin-top: 2px;
+  transition: background 0.3s;
+}
+.pipeline-stage:last-child .pipeline-stage-line {
+  display: none;
+}
+.pipeline-stage-content {
+  padding-top: 6px;
+  flex: 1;
+}
+.pipeline-stage-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.pipeline-stage-status {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Active stage */
+.pipeline-stage.active .pipeline-stage-dot {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.15);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+.pipeline-stage.active .pipeline-stage-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+.pipeline-stage.active .pipeline-stage-status {
+  color: var(--accent);
+}
+
+/* Done stage */
+.pipeline-stage.done .pipeline-stage-dot {
+  border-color: #22c55e;
+  background: rgba(34,197,94,0.12);
+}
+.pipeline-stage.done .pipeline-stage-line {
+  background: #22c55e;
+}
+.pipeline-stage.done .pipeline-stage-label {
+  color: var(--text-primary);
+}
+.pipeline-stage.done .pipeline-stage-dot::after {
+  content: '✓';
+  font-size: 14px;
+  color: #22c55e;
+  font-weight: 700;
+}
+.pipeline-stage.done .pipeline-stage-dot > span {
+  display: none;
+}
+
+/* Progress panel */
+.progress-panel {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-5);
+  background: var(--bg-card);
+  margin-bottom: var(--sp-4);
+}
+.progress-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4);
+  gap: var(--sp-3);
+}
+.progress-panel-title {
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+}
+.progress-segment-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.progress-overall-bar-wrap {
+  height: 6px;
+  background: var(--bg-hover);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: var(--sp-5);
+}
+.progress-overall-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #818cf8);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.progress-complete-box {
+  text-align: center;
+  padding: var(--sp-5) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.progress-complete-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+.progress-complete-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: #22c55e;
+}
+.progress-complete-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Spinner inside button */
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Optional URL/text fields inside step 1 */
+.step1-optional {
+  margin-top: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.optional-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+.optional-divider::before,
+.optional-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* mode auto-detection hint */
+.mode-auto-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-xs);
+  background: rgba(99,102,241,0.1);
+  color: var(--accent);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-top: var(--sp-3);
+}
+</style>
 </head>
-<body>PLACEHOLDER_WILL_BE_REPLACED</body>
+<body>
+
+<!-- Mobile Sidebar Backdrop -->
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+<!-- ══ Sidebar ════════════════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a class="sidebar-logo" href="#">
+      <!-- Compact film+play icon -->
+      <svg class="sidebar-logo-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="0" y="5" width="3" height="4" rx="1" fill="#6366f1"/>
+        <rect x="0" y="12" width="3" height="4" rx="1" fill="#6366f1"/>
+        <rect x="0" y="19" width="3" height="4" rx="1" fill="#6366f1"/>
+        <rect x="3" y="2" width="22" height="24" rx="3" fill="#6366f1"/>
+        <path d="M11 9L11 19L20 14Z" fill="white"/>
+        <rect x="25" y="5" width="3" height="4" rx="1" fill="#6366f1"/>
+        <rect x="25" y="12" width="3" height="4" rx="1" fill="#6366f1"/>
+        <rect x="25" y="19" width="3" height="4" rx="1" fill="#6366f1"/>
+      </svg>
+      <span class="sidebar-logo-text">UGC Video Pro</span>
+    </a>
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="折叠侧边栏">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav" role="navigation" aria-label="主导航">
+    <!-- Main -->
+    <span class="sidebar-section-label">主菜单</span>
+
+    <div class="nav-item active" data-section="new-video" role="button" tabindex="0" aria-label="新建视频">
+      <span class="nav-item-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+      <span class="nav-item-text">新建视频</span>
+    </div>
+
+    <div class="nav-item" data-section="my-videos" role="button" tabindex="0" aria-label="我的视频">
+      <span class="nav-item-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 5.5l4 2.5-4 2.5V5.5Z" fill="currentColor"/></svg>
+      </span>
+      <span class="nav-item-text">我的视频</span>
+    </div>
+
+    <div class="nav-item" data-section="settings" role="button" tabindex="0" aria-label="设置">
+      <span class="nav-item-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </span>
+      <span class="nav-item-text">设置</span>
+    </div>
+
+    <!-- Admin (hidden for regular users) -->
+    <span class="sidebar-section-label admin-only" style="margin-top:var(--sp-4);">管理员</span>
+
+    <div class="nav-item admin-only" data-section="admin-users" role="button" tabindex="0" aria-label="用户管理">
+      <span class="nav-item-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </span>
+      <span class="nav-item-text">用户管理</span>
+    </div>
+
+    <div class="nav-item admin-only" data-section="admin-invites" role="button" tabindex="0" aria-label="邀请码管理">
+      <span class="nav-item-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h6M8 6v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </span>
+      <span class="nav-item-text">邀请码管理</span>
+    </div>
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <div class="nav-item" id="logoutBtn" role="button" tabindex="0">
+      <span class="nav-item-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="nav-item-text">退出登录</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ Main Content ════════════════════════════════════════════════════════════ -->
+<div class="main-content">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <!-- Hamburger (mobile) -->
+      <button class="hamburger" id="hamburger" aria-label="打开菜单">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <span class="header-title" id="headerTitle">新建视频</span>
+    </div>
+
+    <div class="header-right">
+      <div class="user-menu">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div>
+          <div class="user-name" id="userName">加载中...</div>
+        </div>
+        <span class="badge badge-user" id="userRoleBadge">用户</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="page-content">
+
+    <!-- ════════════════════════════════════════════════════════════
+         Section 1: New Video (Wizard) — REWRITTEN
+         ════════════════════════════════════════════════════════════ -->
+    <section class="page-section active" id="section-new-video">
+      <div class="wizard-container">
+
+        <!-- Step Indicator (3 steps only; progress view is step 4 but hidden from indicator) -->
+        <div class="wizard-progress" id="wizardProgressArea">
+          <div class="wizard-steps-header" id="wizardStepsHeader">
+            <!-- Rendered by JS -->
+          </div>
+          <div class="wizard-progress-bar-wrap">
+            <div class="wizard-progress-bar" id="wizardProgressBar" style="width:33.33%"></div>
+          </div>
+          <p class="wizard-step-label">步骤 <span id="currentStepNum">1</span> / 3</p>
+        </div>
+
+        <!-- ── Step 1: Upload Product Content ── -->
+        <div class="wizard-body" id="wizardStep1">
+          <h2 class="wizard-step-title">上传产品内容</h2>
+          <p class="wizard-step-desc">上传产品图片，AI将自动识别生成模式</p>
+
+          <!-- Multi-image upload grid (up to 5) -->
+          <div class="upload-grid" id="imageUploadGrid">
+            <!-- Slots rendered by JS -->
+          </div>
+
+          <!-- Auto-mode indicator -->
+          <div id="autoModeIndicator" style="display:none;margin-bottom:var(--sp-4);">
+            <span class="mode-auto-badge" id="autoModeBadge">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span id="autoModeText">自动检测模式</span>
+            </span>
+          </div>
+
+          <!-- Optional fields -->
+          <div class="step1-optional">
+            <div class="optional-divider">可选信息（提升生成质量）</div>
+
+            <div class="form-group">
+              <label class="form-label" for="productUrl">产品链接 URL（可选）</label>
+              <input
+                type="url"
+                id="productUrl"
+                class="form-input"
+                placeholder="https://www.amazon.com/dp/B09XXXXX"
+              >
+              <span class="form-hint">AI将从链接提取产品信息</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="productText">产品描述（可选）</label>
+              <textarea
+                id="productText"
+                class="form-textarea"
+                placeholder="描述产品特点、材质、卖点、适用场景等，越详细效果越好..."
+                rows="3"
+              ></textarea>
+              <span class="form-hint">可选 — 补充说明有助于提高生成质量</span>
+            </div>
+          </div>
+
+          <div class="wizard-nav">
+            <div></div>
+            <div class="wizard-nav-right">
+              <button class="btn btn-primary" id="step1Next" disabled>下一步</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Step 2: Configure Output ── -->
+        <div class="wizard-body" id="wizardStep2" style="display:none;">
+          <h2 class="wizard-step-title">输出设置</h2>
+          <p class="wizard-step-desc">配置视频时长、语言和质量等级</p>
+
+          <!-- Duration -->
+          <div class="form-group" style="margin-bottom:var(--sp-5);">
+            <label class="form-label">视频时长</label>
+            <div class="duration-presets" id="durationPresets">
+              <button class="duration-btn" data-val="30">30秒</button>
+              <button class="duration-btn" data-val="60">60秒</button>
+              <button class="duration-btn" data-val="90">90秒</button>
+            </div>
+            <div style="display:flex;gap:var(--sp-3);align-items:center;">
+              <input
+                type="number"
+                id="customDuration"
+                class="form-input"
+                style="max-width:130px;"
+                placeholder="自定义秒数"
+                min="1"
+              >
+              <button class="btn btn-secondary btn-sm" id="applyCustomDuration">应用</button>
+            </div>
+            <span class="form-error" id="customDurationError"></span>
+          </div>
+
+          <!-- Language (multi-select) -->
+          <div class="form-group" style="margin-bottom:var(--sp-5);">
+            <label class="form-label">旁白语言（可多选，至少一种）</label>
+            <div class="lang-check-grid">
+              <label class="lang-checkbox">
+                <input type="checkbox" name="lang" value="it" id="langIt" checked>
+                🇮🇹 Italiano
+              </label>
+              <label class="lang-checkbox">
+                <input type="checkbox" name="lang" value="zh" id="langZh">
+                🇨🇳 中文
+              </label>
+              <label class="lang-checkbox">
+                <input type="checkbox" name="lang" value="en" id="langEn">
+                🇬🇧 English
+              </label>
+            </div>
+            <span class="form-hint" id="langHint">将为每种语言生成独立的TTS语音</span>
+          </div>
+
+          <!-- Quality Tier -->
+          <div class="form-group" style="margin-bottom:var(--sp-3);">
+            <label class="form-label">质量等级（自动选择最优模型）</label>
+            <div class="quality-grid">
+
+              <div class="quality-card" data-tier="economy" role="button" tabindex="0">
+                <div class="quality-card-icon">⚡</div>
+                <div class="quality-card-title">经济版</div>
+                <div class="quality-card-desc">高性价比 · Seedance 1.5</div>
+                <div class="quality-card-price">~$0.04/片段</div>
+              </div>
+
+              <div class="quality-card" data-tier="premium" role="button" tabindex="0">
+                <div class="quality-card-icon">⭐</div>
+                <div class="quality-card-title">高质量版</div>
+                <div class="quality-card-desc">最佳画质 · Veo 3.1 Quality</div>
+                <div class="quality-card-price">~$1.25/片段</div>
+              </div>
+
+              <div class="quality-card" data-tier="china" role="button" tabindex="0">
+                <div class="quality-card-icon">🎵</div>
+                <div class="quality-card-title">中国市场版</div>
+                <div class="quality-card-desc">含原生音频 · Kling 3.0</div>
+                <div class="quality-card-price">特价</div>
+              </div>
+
+            </div>
+
+            <!-- Advanced model selector (collapsed by default) -->
+            <button class="advanced-toggle" id="advancedToggleBtn" type="button">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              展开全部模型（高级选项）
+            </button>
+            <div class="advanced-models-wrap" id="advancedModelsWrap">
+              <p style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:var(--sp-3);">手动选择模型（将覆盖质量等级设置）</p>
+              <div class="model-grid" id="advancedModelGrid">
+                <div class="model-card" data-model="veo_31_fast" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">💎 Veo 3.1 Fast</span>
+                    <span class="model-card-badge">推荐</span>
+                  </div>
+                  <div class="model-card-clip">最长 8 秒/片段 · $0.30</div>
+                </div>
+                <div class="model-card" data-model="veo_31_quality" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">⭐ Veo 3.1 Quality</span>
+                  </div>
+                  <div class="model-card-clip">最长 8 秒/片段 · $1.25</div>
+                </div>
+                <div class="model-card" data-model="seedance_15" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🎬 Seedance 1.5 Pro</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · $0.035起</div>
+                </div>
+                <div class="model-card" data-model="seedance_2" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🔒 Seedance 2.0</span>
+                    <span class="model-card-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">即将上线</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · 动画剧专用</div>
+                </div>
+                <div class="model-card" data-model="sora_2" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">⚡ Sora 2</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · $0.175</div>
+                </div>
+                <div class="model-card" data-model="runway" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🎥 Runway</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · $0.06起</div>
+                </div>
+                <div class="model-card" data-model="kling_30" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🎵 Kling 3.0</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · 含音频</div>
+                </div>
+                <div class="model-card" data-model="hailuo" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🌊 Hailuo 2.3</span>
+                  </div>
+                  <div class="model-card-clip">最长 6 秒/片段 · $0.15</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-nav">
+            <button class="btn btn-secondary" id="step2Back">上一步</button>
+            <div class="wizard-nav-right">
+              <button class="btn btn-primary" id="step2Next" disabled>下一步</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Step 3: Confirm & Generate ── -->
+        <div class="wizard-body" id="wizardStep3" style="display:none;">
+          <h2 class="wizard-step-title">确认生成配置</h2>
+          <p class="wizard-step-desc">请核对以下配置，确认无误后开始生成：</p>
+
+          <div class="summary-grid" id="summaryGrid">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="wizard-nav">
+            <button class="btn btn-secondary" id="step3Back">上一步</button>
+            <div class="wizard-nav-right">
+              <button class="btn btn-primary btn-lg" id="startGenerateBtn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3Z" fill="currentColor"/></svg>
+                开始生成
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Step 4: Real-time Progress (not in indicator) ── -->
+        <div class="wizard-body" id="wizardStep4" style="display:none;">
+          <h2 class="wizard-step-title">视频生成中</h2>
+          <p class="wizard-step-desc" id="progressTaskId">正在处理您的任务...</p>
+
+          <!-- Progress panel -->
+          <div class="progress-panel">
+            <div class="progress-panel-header">
+              <span class="progress-panel-title">生成进度</span>
+              <span class="progress-segment-label" id="progressSegmentLabel">等待开始</span>
+            </div>
+            <!-- Overall bar -->
+            <div class="progress-overall-bar-wrap">
+              <div class="progress-overall-bar" id="progressOverallBar" style="width:0%"></div>
+            </div>
+            <!-- Pipeline stages -->
+            <div class="pipeline-stages" id="pipelineStages">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Complete state (hidden until done) -->
+          <div class="progress-complete-box" id="progressCompleteBox" style="display:none;">
+            <div class="progress-complete-icon">🎉</div>
+            <div class="progress-complete-title">视频生成完成！</div>
+            <div class="progress-complete-desc">您的视频已准备好，可以下载了</div>
+            <div style="display:flex;gap:var(--sp-3);flex-wrap:wrap;justify-content:center;">
+              <button class="btn btn-primary btn-lg" id="progressDownloadBtn" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                下载视频
+              </button>
+              <button class="btn btn-secondary" id="progressGoToVideosBtn">前往我的视频</button>
+            </div>
+          </div>
+
+          <!-- Failed state -->
+          <div class="progress-complete-box" id="progressFailedBox" style="display:none;">
+            <div class="progress-complete-icon">❌</div>
+            <div class="progress-complete-title" style="color:#ef4444;">生成失败</div>
+            <div class="progress-complete-desc" id="progressErrorMsg">生成过程中发生错误，请重试</div>
+            <div style="display:flex;gap:var(--sp-3);">
+              <button class="btn btn-primary" id="progressRetryBtn">重新生成</button>
+              <button class="btn btn-secondary" id="progressGoToVideosBtn2">前往我的视频</button>
+            </div>
+          </div>
+
+          <div class="wizard-nav" style="margin-top:var(--sp-4);">
+            <button class="btn btn-ghost btn-sm" id="progressCancelBtn">取消并返回</button>
+            <div></div>
+          </div>
+        </div>
+
+      </div><!-- /wizard-container -->
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Section 2: My Videos
+         ════════════════════════════════════════════════════════════ -->
+    <section class="page-section" id="section-my-videos">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">我的视频</h1>
+          <p class="section-subtitle">查看所有生成任务及下载</p>
+        </div>
+        <button class="btn btn-primary" id="newVideoBtn">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          新建视频
+        </button>
+      </div>
+
+      <!-- View toggle -->
+      <div class="tabs" style="margin-bottom:var(--sp-5);">
+        <div class="tab-item active" data-view="list">列表视图</div>
+        <div class="tab-item" data-view="grid">卡片视图</div>
+      </div>
+
+      <!-- Loading skeletons -->
+      <div id="videosLoading" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--sp-4);">
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="videosEmpty" style="display:none;">
+        <div class="empty-icon">🎦</div>
+        <div class="empty-title">还没有视频任务</div>
+        <div class="empty-desc">点击「新建视频」开始您的第一个 AI 视频生成任务</div>
+        <button class="btn btn-primary" onclick="Dashboard.navigate('new-video')">新建视频</button>
+      </div>
+
+      <!-- List view -->
+      <div id="videosListView">
+        <div class="table-container" id="videosTable" style="display:none;">
+          <table>
+            <thead>
+              <tr>
+                <th>状态</th>
+                <th>模式</th>
+                <th>模型</th>
+                <th>时长</th>
+                <th>语言</th>
+                <th>创建时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="videosTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Grid/Card view -->
+      <div id="videosGridView" style="display:none;">
+        <div class="video-grid" id="videosGrid"></div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="videosPagination" style="display:flex;gap:var(--sp-2);justify-content:center;margin-top:var(--sp-6);"></div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Section 3: Settings
+         ════════════════════════════════════════════════════════════ -->
+    <section class="page-section" id="section-settings">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">设置</h1>
+          <p class="section-subtitle">账户偏好设置</p>
+        </div>
+      </div>
+
+      <div style="max-width:480px;display:flex;flex-direction:column;gap:var(--sp-5);">
+        <div class="card-elevated">
+          <h3 style="margin-bottom:var(--sp-4);">账户信息</h3>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
+            <div class="form-group">
+              <label class="form-label">邮筊地址</label>
+              <input type="email" class="form-input" id="settingsEmail" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">显示名称</label>
+              <input type="text" id="settingsName" class="form-input" placeholder="您的名称">
+            </div>
+          </div>
+        </div>
+
+        <div class="card-elevated">
+          <h3 style="margin-bottom:var(--sp-4);">修改密码</h3>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
+            <div class="form-group">
+              <label class="form-label">当前密码</label>
+              <input type="password" id="currentPwd" class="form-input" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label">新密码</label>
+              <input type="password" id="newPwd" class="form-input" placeholder="至少8位">
+            </div>
+            <div class="form-group">
+              <label class="form-label">确认新密码</label>
+              <input type="password" id="confirmPwd" class="form-input" placeholder="再次输入">
+            </div>
+            <button class="btn btn-primary" id="savePwdBtn">保存密码</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Section 4: Admin — Users (admin only)
+         ════════════════════════════════════════════════════════════ -->
+    <section class="page-section admin-only" id="section-admin-users">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">用户管理</h1>
+          <p class="section-subtitle">查看和管理所有用户</p>
+        </div>
+        <button class="btn btn-primary" id="createUserBtn">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          创建用户
+        </button>
+      </div>
+
+      <div id="usersLoading" style="display:none;">
+        <div style="display:flex;flex-direction:column;gap:var(--sp-3);">
+          <div class="skeleton skeleton-text" style="width:100%;height:40px;"></div>
+          <div class="skeleton skeleton-text" style="width:100%;height:40px;"></div>
+          <div class="skeleton skeleton-text" style="width:100%;height:40px;"></div>
+        </div>
+      </div>
+
+      <div class="table-container" id="usersTable" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>邮筊</th>
+              <th>名称</th>
+              <th>角色</th>
+              <th>状态</th>
+              <th>注册时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Section 5: Admin — Invite Codes (admin only)
+         ════════════════════════════════════════════════════════════ -->
+    <section class="page-section admin-only" id="section-admin-invites">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">邀请码管理</h1>
+          <p class="section-subtitle">生成和管理邀请码</p>
+        </div>
+      </div>
+
+      <!-- Generate form -->
+      <div class="card-elevated" style="max-width:400px;margin-bottom:var(--sp-6);">
+        <h3 style="margin-bottom:var(--sp-4);">生成邀请码</h3>
+        <div class="generate-codes-wrap">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label" for="inviteCount">数量</label>
+            <input type="number" id="inviteCount" class="form-input" value="1" min="1" max="50">
+          </div>
+          <button class="btn btn-primary" id="generateCodesBtn">生成</button>
+        </div>
+      </div>
+
+      <!-- Invite codes list -->
+      <div id="inviteCodesLoading" style="display:none;">
+        <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+          <div class="skeleton skeleton-text" style="height:44px;"></div>
+          <div class="skeleton skeleton-text" style="height:44px;"></div>
+        </div>
+      </div>
+
+      <div id="inviteCodesList" style="display:flex;flex-direction:column;gap:var(--sp-2);"></div>
+
+    </section>
+
+  </main><!-- /page-content -->
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+  </footer>
+
+</div><!-- /main-content -->
+
+<!-- ══ Edit User Modal ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editUserModalTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="editUserModalTitle">编辑用户</h2>
+      <button class="modal-close" id="editUserModalClose" aria-label="关闭">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
+      <input type="hidden" id="editUserId">
+      <div class="form-group">
+        <label class="form-label">邮筊</label>
+        <input type="email" id="editUserEmail" class="form-input" disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">角色</label>
+        <select id="editUserRole" class="form-input" style="cursor:pointer;">
+          <option value="user">普通用户</option>
+          <option value="admin">管理员</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">账户状态</label>
+        <select id="editUserActive" class="form-input" style="cursor:pointer;">
+          <option value="true">已激活</option>
+          <option value="false">已停用</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="editUserCancel">取消</button>
+      <button class="btn btn-primary" id="editUserSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Confirm Delete Modal ══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="confirmDeleteModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmDeleteTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="confirmDeleteTitle">确认删除</h2>
+      <button class="modal-close" id="confirmDeleteClose" aria-label="关闭">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <p style="color:var(--text-secondary);font-size:var(--text-sm);" id="confirmDeleteMsg">确认删除此视频任务吗？此操作不可撤销。</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="confirmDeleteCancel">取消</button>
+      <button class="btn btn-danger" id="confirmDeleteOk">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Toast Container ══════════════════════════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<script src="js/api.js?v=1772674381"></script>
+<script src="js/dashboard.js?v=1772674400"></script>
+<script src="js/admin.js"></script>
+<script>
+  Dashboard.init();
+</script>
+</body>
 </html>
