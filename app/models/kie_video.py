@@ -8,6 +8,8 @@ Routes ALL video generation through KIE.AI gateway:
     - Veo 3.1 (text-to-video, image-to-video) → /api/v1/veo/generate
     - Sora 2 (text-to-video, image-to-video) → /api/v1/jobs/createTask
     - Runway (text-to-video, image-to-video) → /api/v1/runway/generate
+    - Kling 3.0 / 2.6 → /api/v1/jobs/createTask
+    - Hailuo 2.3 / 02 → /api/v1/jobs/createTask
 
 Different KIE.AI model families use different API endpoints and
 parameter formats. This adapter handles the routing transparently.
@@ -27,6 +29,16 @@ logger = get_logger(__name__)
 
 # ──────────────────────────────────────────────────────────────
 # Model registry — all KIE.AI video models
+#
+# Model names verified against KIE.AI docs (March 2026):
+#   - Kling 3.0: "kling-3.0/video" (requires multi_shots, sound, mode)
+#   - Kling 2.6: "kling-2.6/text-to-video" / "kling-2.6/image-to-video"
+#   - Hailuo 2.3: "hailuo/2-3-image-to-video-standard" etc.
+#   - Hailuo 02:  "hailuo/02-text-to-video-pro" etc.
+#   - Seedance:   "bytedance/seedance-1.5-pro"
+#   - Sora 2:     "sora-2-text-to-video" / "sora-2-image-to-video"
+#   - Veo 3.1:    "veo3_fast" / "veo3_quality" (via /api/v1/veo/*)
+#   - Runway:     "runway-duration-5-generate" (via /api/v1/runway/*)
 # ──────────────────────────────────────────────────────────────
 
 KIE_VIDEO_MODELS = {
@@ -35,6 +47,7 @@ KIE_VIDEO_MODELS = {
         "kie_model_t2v": "bytedance/seedance-1.5-pro",
         "kie_model_i2v": "bytedance/seedance-1.5-pro",
         "provider": KieProvider.GENERIC,
+        "input_style": "generic",
         "max_seconds": 10,
         "exact_reference": True,
         "supports_i2v": True,
@@ -44,6 +57,7 @@ KIE_VIDEO_MODELS = {
         "kie_model_t2v": "bytedance/seedance-2-text-to-video",
         "kie_model_i2v": "bytedance/seedance-2-text-to-video",
         "provider": KieProvider.GENERIC,
+        "input_style": "generic",
         "max_seconds": 10,
         "exact_reference": True,
         "supports_i2v": True,
@@ -56,6 +70,7 @@ KIE_VIDEO_MODELS = {
         "kie_model_t2v": "veo3_fast",
         "kie_model_i2v": "veo3_fast",
         "provider": KieProvider.VEO,
+        "input_style": "veo",
         "max_seconds": 8,
         "exact_reference": True,
         "supports_i2v": True,
@@ -65,6 +80,7 @@ KIE_VIDEO_MODELS = {
         "kie_model_t2v": "veo3_quality",
         "kie_model_i2v": "veo3_quality",
         "provider": KieProvider.VEO,
+        "input_style": "veo",
         "max_seconds": 8,
         "exact_reference": True,
         "supports_i2v": True,
@@ -76,6 +92,7 @@ KIE_VIDEO_MODELS = {
         "kie_model_t2v": "sora-2-text-to-video",
         "kie_model_i2v": "sora-2-image-to-video",
         "provider": KieProvider.GENERIC,
+        "input_style": "sora",
         "max_seconds": 10,
         "exact_reference": False,
         "supports_i2v": True,
@@ -87,41 +104,90 @@ KIE_VIDEO_MODELS = {
         "kie_model_t2v": "runway-duration-5-generate",
         "kie_model_i2v": "runway-duration-5-generate",
         "provider": KieProvider.RUNWAY,
+        "input_style": "runway",
         "max_seconds": 5,
         "exact_reference": False,
         "supports_i2v": True,
         "default_resolution": "720p",
     },
 
-    # ── Kling (generic endpoint) ─────────────────────────
-    "kling_26": {
-        "kie_model_t2v": "kling-2.6/text-to-video",
-        "kie_model_i2v": "kling-2.6/text-to-video",
-        "provider": KieProvider.GENERIC,
-        "max_seconds": 10,
-        "exact_reference": False,
-        "supports_i2v": True,
-        "supports_audio": True,
-    },
+    # ── Kling 3.0 (generic endpoint, special input format) ──
+    # KIE model name: "kling-3.0/video"
+    # Required fields: multi_shots, sound, mode
+    # Reference images use "image_urls" (not "input_urls")
     "kling_30": {
-        "kie_model_t2v": "kling-3.0/text-to-video",
-        "kie_model_i2v": "kling-3.0/text-to-video",
+        "kie_model_t2v": "kling-3.0/video",
+        "kie_model_i2v": "kling-3.0/video",
         "provider": KieProvider.GENERIC,
-        "max_seconds": 10,
+        "input_style": "kling30",
+        "max_seconds": 15,
         "exact_reference": True,
         "supports_i2v": True,
         "supports_audio": True,
     },
 
-    # ── Hailuo (generic endpoint) ────────────────────────
-    "hailuo": {
-        "kie_model_t2v": "minimax/hailuo-2.3",
-        "kie_model_i2v": "minimax/hailuo-2.3",
+    # ── Kling 2.6 (generic endpoint) ─────────────────────
+    # KIE model names: "kling-2.6/text-to-video" / "kling-2.6/image-to-video"
+    "kling_26": {
+        "kie_model_t2v": "kling-2.6/text-to-video",
+        "kie_model_i2v": "kling-2.6/image-to-video",
         "provider": KieProvider.GENERIC,
+        "input_style": "kling26",
+        "max_seconds": 10,
+        "exact_reference": False,
+        "supports_i2v": True,
+        "supports_audio": True,
+    },
+
+    # ── Hailuo 2.3 (generic endpoint) ────────────────────
+    # No 2.3 t2v on KIE; use 02-text-to-video-standard for t2v
+    "hailuo_23": {
+        "kie_model_t2v": "hailuo/02-text-to-video-standard",
+        "kie_model_i2v": "hailuo/2-3-image-to-video-standard",
+        "provider": KieProvider.GENERIC,
+        "input_style": "hailuo",
         "max_seconds": 6,
         "exact_reference": False,
         "supports_i2v": True,
     },
+
+    # ── Hailuo 2.3 Pro (generic endpoint) ────────────────
+    "hailuo_23_pro": {
+        "kie_model_t2v": "hailuo/02-text-to-video-pro",
+        "kie_model_i2v": "hailuo/2-3-image-to-video-pro",
+        "provider": KieProvider.GENERIC,
+        "input_style": "hailuo",
+        "max_seconds": 6,
+        "exact_reference": False,
+        "supports_i2v": True,
+    },
+
+    # ── Hailuo 02 (generic endpoint) ─────────────────────
+    "hailuo_02": {
+        "kie_model_t2v": "hailuo/02-text-to-video-standard",
+        "kie_model_i2v": "hailuo/02-image-to-video-standard",
+        "provider": KieProvider.GENERIC,
+        "input_style": "hailuo",
+        "max_seconds": 6,
+        "exact_reference": False,
+        "supports_i2v": True,
+    },
+
+    # ── Hailuo 02 Pro (generic endpoint) ─────────────────
+    "hailuo_02_pro": {
+        "kie_model_t2v": "hailuo/02-text-to-video-pro",
+        "kie_model_i2v": "hailuo/02-image-to-video-pro",
+        "provider": KieProvider.GENERIC,
+        "input_style": "hailuo",
+        "max_seconds": 6,
+        "exact_reference": False,
+        "supports_i2v": True,
+    },
+}
+
+# Backward-compatible aliases
+_ALIASES = {
+    "hailuo": "hailuo_23",
 }
 
 
@@ -135,16 +201,20 @@ class KieVideoAdapter(VideoModelAdapter):
 
     def __init__(self, config: dict, model_variant: str = "veo_31_fast"):
         super().__init__(config)
-        self._model_variant = model_variant
 
-        if model_variant not in KIE_VIDEO_MODELS:
+        # Resolve aliases
+        resolved = _ALIASES.get(model_variant, model_variant)
+        self._model_variant = resolved
+
+        if resolved not in KIE_VIDEO_MODELS:
             raise ValueError(
                 f"Unknown KIE video model: {model_variant}. "
                 f"Available: {list(KIE_VIDEO_MODELS.keys())}"
             )
 
-        self._model_config = KIE_VIDEO_MODELS[model_variant]
+        self._model_config = KIE_VIDEO_MODELS[resolved]
         self._provider = self._model_config.get("provider", KieProvider.GENERIC)
+        self._input_style = self._model_config.get("input_style", "generic")
         self._gateway = KieGateway(config)
 
         if self._model_config.get("coming_soon"):
@@ -169,6 +239,27 @@ class KieVideoAdapter(VideoModelAdapter):
     def supports_image_to_video(self) -> bool:
         return self._model_config.get("supports_i2v", True)
 
+    # ──────────────────────────────────────────────────────
+    # Input builders — one per input_style
+    # ──────────────────────────────────────────────────────
+
+    def _resolve_image(self, reference_image: str) -> Optional[str]:
+        """Convert a local file path to a data URL, or pass through if URL."""
+        if reference_image.startswith(("http://", "https://")):
+            return reference_image
+        if Path(reference_image).exists():
+            try:
+                with open(reference_image, "rb") as f:
+                    img_bytes = f.read()
+                img_b64 = base64.b64encode(img_bytes).decode()
+                suffix = Path(reference_image).suffix.lower()
+                mime = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
+                return f"data:{mime};base64,{img_b64}"
+            except Exception as e:
+                logger.warning(f"Could not read reference image: {e}")
+                return None
+        return None
+
     def _build_input_generic(
         self,
         prompt: str,
@@ -176,64 +267,131 @@ class KieVideoAdapter(VideoModelAdapter):
         reference_image: Optional[str] = None,
         aspect_ratio: str = "9:16",
     ) -> dict:
-        """Build input params for GENERIC endpoint (Sora, Seedance, Kling, Hailuo).
-        These go nested under 'input' in the request body.
+        """Generic endpoint (Seedance, Kling legacy, etc.).
+        Nested under 'input' in the request body.
+        """
+        input_params: dict = {
+            "prompt": prompt,
+            "duration": str(duration),
+            "aspect_ratio": aspect_ratio,
+        }
+
+        resolution = self._model_config.get("default_resolution")
+        if resolution:
+            input_params["resolution"] = resolution
+
+        if reference_image:
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["input_urls"] = [img_url]
+
+        if self._model_config.get("supports_audio"):
+            input_params["generate_audio"] = True
+
+        return input_params
+
+    def _build_input_kling30(
+        self,
+        prompt: str,
+        duration: int,
+        reference_image: Optional[str] = None,
+        aspect_ratio: str = "9:16",
+    ) -> dict:
+        """Kling 3.0: model="kling-3.0/video"
+        Required fields: multi_shots, sound, mode, duration (str "3"-"15")
+        Reference images go in image_urls (not input_urls).
+        """
+        input_params: dict = {
+            "prompt": prompt,
+            "duration": str(min(duration, 15)),
+            "aspect_ratio": aspect_ratio,
+            "mode": "std",        # std = 720p, pro = 1080p
+            "multi_shots": False,  # single-shot mode
+            "sound": True,         # native audio generation
+        }
+
+        if reference_image:
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["image_urls"] = [img_url]
+
+        return input_params
+
+    def _build_input_kling26(
+        self,
+        prompt: str,
+        duration: int,
+        reference_image: Optional[str] = None,
+        aspect_ratio: str = "9:16",
+    ) -> dict:
+        """Kling 2.6: model="kling-2.6/text-to-video" or "kling-2.6/image-to-video"
+        Uses sound, duration, aspect_ratio.
+        Reference images: image_url (singular string, not array).
+        """
+        input_params: dict = {
+            "prompt": prompt,
+            "duration": str(min(duration, 10)),
+            "aspect_ratio": aspect_ratio,
+            "sound": True,
+        }
+
+        if reference_image:
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["image_url"] = img_url
+
+        return input_params
+
+    def _build_input_hailuo(
+        self,
+        prompt: str,
+        duration: int,
+        reference_image: Optional[str] = None,
+        aspect_ratio: str = "9:16",
+    ) -> dict:
+        """Hailuo 2.3 / 02: uses prompt, duration, image_url, resolution.
         """
         input_params: dict = {
             "prompt": prompt,
         }
 
-        # Duration
-        if "kling" in self._model_variant or "seedance" in self._model_variant:
-            input_params["duration"] = str(duration)
-        elif "hailuo" in self._model_variant:
-            input_params["duration"] = str(duration)
-        elif "sora" in self._model_variant:
-            # Sora uses n_frames: "10" or "15"
-            input_params["n_frames"] = str(min(duration, 10))
-            # Sora aspect_ratio is "landscape" or "portrait"
-            if aspect_ratio in ("16:9", "landscape"):
-                input_params["aspect_ratio"] = "landscape"
-            else:
-                input_params["aspect_ratio"] = "portrait"
+        # Duration: "6" or "10"
+        if duration <= 6:
+            input_params["duration"] = "6"
         else:
-            input_params["duration"] = duration
+            input_params["duration"] = "10"
 
-        # Aspect ratio (non-Sora models)
-        if "sora" not in self._model_variant:
-            input_params["aspect_ratio"] = aspect_ratio
-
-        # Resolution
-        resolution = self._model_config.get("default_resolution")
-        if resolution and "sora" not in self._model_variant:
-            input_params["resolution"] = resolution
-
-        # Reference image (for image-to-video)
         if reference_image:
-            if reference_image.startswith(("http://", "https://")):
-                # URL-based reference
-                if "sora" in self._model_variant:
-                    input_params["image_urls"] = [reference_image]
-                else:
-                    input_params["input_urls"] = [reference_image]
-            elif Path(reference_image).exists():
-                try:
-                    with open(reference_image, "rb") as f:
-                        img_bytes = f.read()
-                    img_b64 = base64.b64encode(img_bytes).decode()
-                    suffix = Path(reference_image).suffix.lower()
-                    mime = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
-                    data_url = f"data:{mime};base64,{img_b64}"
-                    if "sora" in self._model_variant:
-                        input_params["image_urls"] = [data_url]
-                    else:
-                        input_params["input_urls"] = [data_url]
-                except Exception as e:
-                    logger.warning(f"Could not attach reference image: {e}")
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["image_url"] = img_url
 
-        # Audio flag (Kling, Seedance)
-        if self._model_config.get("supports_audio"):
-            input_params["generate_audio"] = True
+        return input_params
+
+    def _build_input_sora(
+        self,
+        prompt: str,
+        duration: int,
+        reference_image: Optional[str] = None,
+        aspect_ratio: str = "9:16",
+    ) -> dict:
+        """Sora 2: model="sora-2-text-to-video" / "sora-2-image-to-video"
+        Uses n_frames, aspect_ratio as "landscape"/"portrait".
+        """
+        input_params: dict = {
+            "prompt": prompt,
+            "n_frames": str(min(duration, 10)),
+        }
+
+        if aspect_ratio in ("16:9", "landscape"):
+            input_params["aspect_ratio"] = "landscape"
+        else:
+            input_params["aspect_ratio"] = "portrait"
+
+        if reference_image:
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["image_urls"] = [img_url]
 
         return input_params
 
@@ -244,31 +402,18 @@ class KieVideoAdapter(VideoModelAdapter):
         reference_image: Optional[str] = None,
         aspect_ratio: str = "9:16",
     ) -> dict:
-        """Build input params for VEO endpoint.
-        These go flat in the request body (NOT nested under 'input').
-        """
+        """Veo 3.1: flat body params (NOT nested under 'input')."""
         input_params: dict = {
             "prompt": prompt,
             "aspect_ratio": aspect_ratio,
             "enableTranslation": True,
         }
 
-        # Reference image → imageUrls + generationType
         if reference_image:
-            if reference_image.startswith(("http://", "https://")):
-                input_params["imageUrls"] = [reference_image]
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["imageUrls"] = [img_url]
                 input_params["generationType"] = "FIRST_AND_LAST_FRAMES_2_VIDEO"
-            elif Path(reference_image).exists():
-                try:
-                    with open(reference_image, "rb") as f:
-                        img_bytes = f.read()
-                    img_b64 = base64.b64encode(img_bytes).decode()
-                    suffix = Path(reference_image).suffix.lower()
-                    mime = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
-                    input_params["imageUrls"] = [f"data:{mime};base64,{img_b64}"]
-                    input_params["generationType"] = "FIRST_AND_LAST_FRAMES_2_VIDEO"
-                except Exception as e:
-                    logger.warning(f"Could not attach Veo reference image: {e}")
         else:
             input_params["generationType"] = "TEXT_2_VIDEO"
 
@@ -281,46 +426,32 @@ class KieVideoAdapter(VideoModelAdapter):
         reference_image: Optional[str] = None,
         aspect_ratio: str = "9:16",
     ) -> dict:
-        """Build input params for RUNWAY endpoint.
-        These go flat in the request body (NOT nested under 'input').
-        """
+        """Runway: flat body params."""
         input_params: dict = {
             "prompt": prompt,
-            "waterMark": "",  # No watermark
+            "waterMark": "",
         }
 
-        # Runway uses different aspect ratio format
         if aspect_ratio in ("16:9",):
             input_params["aspectRatio"] = "horizontal"
         else:
             input_params["aspectRatio"] = "vertical"
 
-        # Duration: 5 or 10
-        if duration <= 5:
-            input_params["duration"] = 5
-        else:
-            input_params["duration"] = 10
+        input_params["duration"] = 5 if duration <= 5 else 10
 
-        # Quality
         resolution = self._model_config.get("default_resolution", "720p")
         input_params["quality"] = resolution
 
-        # Reference image → imageUrl (singular)
         if reference_image:
-            if reference_image.startswith(("http://", "https://")):
-                input_params["imageUrl"] = reference_image
-            elif Path(reference_image).exists():
-                try:
-                    with open(reference_image, "rb") as f:
-                        img_bytes = f.read()
-                    img_b64 = base64.b64encode(img_bytes).decode()
-                    suffix = Path(reference_image).suffix.lower()
-                    mime = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
-                    input_params["imageUrl"] = f"data:{mime};base64,{img_b64}"
-                except Exception as e:
-                    logger.warning(f"Could not attach Runway reference image: {e}")
+            img_url = self._resolve_image(reference_image)
+            if img_url:
+                input_params["imageUrl"] = img_url
 
         return input_params
+
+    # ──────────────────────────────────────────────────────
+    # Main API
+    # ──────────────────────────────────────────────────────
 
     async def generate(
         self,
@@ -344,35 +475,31 @@ class KieVideoAdapter(VideoModelAdapter):
             kie_model = self._model_config["kie_model_t2v"]
 
         # Build provider-specific input params
-        if self._provider == KieProvider.VEO:
-            input_params = self._build_input_veo(
-                prompt=prompt,
-                duration=actual_duration,
-                reference_image=reference_image,
-                aspect_ratio=aspect_ratio,
-            )
-        elif self._provider == KieProvider.RUNWAY:
-            input_params = self._build_input_runway(
-                prompt=prompt,
-                duration=actual_duration,
-                reference_image=reference_image,
-                aspect_ratio=aspect_ratio,
-            )
-        else:
-            input_params = self._build_input_generic(
-                prompt=prompt,
-                duration=actual_duration,
-                reference_image=reference_image,
-                aspect_ratio=aspect_ratio,
-            )
+        builder = {
+            "veo": self._build_input_veo,
+            "runway": self._build_input_runway,
+            "sora": self._build_input_sora,
+            "kling30": self._build_input_kling30,
+            "kling26": self._build_input_kling26,
+            "hailuo": self._build_input_hailuo,
+            "generic": self._build_input_generic,
+        }.get(self._input_style, self._build_input_generic)
 
-        if is_continuation and self._provider == KieProvider.GENERIC:
+        input_params = builder(
+            prompt=prompt,
+            duration=actual_duration,
+            reference_image=reference_image,
+            aspect_ratio=aspect_ratio,
+        )
+
+        if is_continuation and self._input_style == "generic":
             input_params["fixed_lens"] = True
 
         logger.info(
             f"KIE video generate: variant={self._model_variant}, "
             f"provider={self._provider.value}, kie_model={kie_model}, "
-            f"duration={actual_duration}s, has_ref={has_reference}"
+            f"style={self._input_style}, duration={actual_duration}s, "
+            f"has_ref={has_reference}"
         )
 
         task = await self._gateway.create_task(
@@ -382,12 +509,10 @@ class KieVideoAdapter(VideoModelAdapter):
         )
 
         # Store provider info in task_id for later polling
-        # Format: "provider:task_id" to route polling correctly
         return f"{self._provider.value}:{task.task_id}"
 
     async def poll_status(self, job_id: str) -> GenerationJob:
         """Poll KIE.AI task status."""
-        # Parse provider from composite job_id
         provider = KieProvider.GENERIC
         actual_task_id = job_id
         if ":" in job_id:
