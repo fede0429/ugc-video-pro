@@ -1,190 +1,120 @@
-# ============================================================
-# UGC Video Pro v2.1 - Configuration
-# ============================================================
-# KIE.AI Unified Platform Edition
-# All AI model calls route through KIE.AI gateway
-# ============================================================
-
-
-# ── Web Application ───────────────────────────────────────────────────────
 web:
-  host: "0.0.0.0"
+  host: 0.0.0.0
   port: 8000
-  cors_origins: ["*"]
-  upload_dir: "/app/data/uploads"
-  video_dir: "/app/data/videos"
-
-
-# ── Database ────────────────────────────────────────────────────────
+  cors_origins:
+  - '*'
+  upload_dir: /app/data/uploads
+  video_dir: /app/data/videos
 database:
-  url: "${DATABASE_URL}"
-
-
-# ── Authentication ──────────────────────────────────────────────────
+  url: ${DATABASE_URL}
 auth:
-  jwt_secret: "${JWT_SECRET}"
+  jwt_secret: ${JWT_SECRET}
   access_token_expire_minutes: 30
   refresh_token_expire_days: 7
-  admin_email: "${ADMIN_EMAIL:-admin@ugcvideo.pro}"
-  admin_password: "${ADMIN_PASSWORD:-changeme123}"
-
-
-# ── KIE.AI Unified API Gateway (PRIMARY) ───────────────────────
-# All models route through KIE.AI: https://kie.ai
-# Docs: https://docs.kie.ai
-# Pricing: https://kie.ai/pricing (30-80% cheaper than official)
+  admin_email: ${ADMIN_EMAIL:-admin@ugcvideo.pro}
+  admin_password: ${ADMIN_PASSWORD:-changeme123}
 kie:
-  api_key: "${KIE_API_KEY}"
-  # Optional webhook for async task completion notifications
-  callback_url: ""
-  # Polling interval in seconds (for video/image generation)
+  api_key: ${KIE_API_KEY}
+  callback_url: ''
   poll_interval: 15
-  # Maximum polling attempts (15s × 120 = 30 min max)
   max_poll_retries: 120
-
-
-# ── Legacy Direct API Keys (fallback if KIE.AI unavailable) ────
 models:
   openai:
-    api_key: "${OPENAI_API_KEY}"
+    api_key: ${OPENAI_API_KEY}
   google:
-    api_key: "${GOOGLE_API_KEY}"
+    api_key: ${GOOGLE_API_KEY}
   seedance:
-    api_key: "${SEEDANCE_API_KEY}"
-    base_url: "https://api.seedance.ai/v1"
-
-
-# ── Script Generation (via KIE.AI Chat or direct Gemini) ──────
+    api_key: ${SEEDANCE_API_KEY}
+    base_url: https://api.seedance.ai/v1
 gemini:
-  api_key: "${GOOGLE_API_KEY}"
-  model: "gemini-2.5-flash"
-  fallback_model: "gemini-2.0-flash"
-  # Set to true to use KIE.AI chat API for script generation
+  api_key: ${GOOGLE_API_KEY}
+  model: gemini-2.5-flash
+  fallback_model: gemini-2.0-flash
   use_kie: true
-
-
-# ── TTS Settings (via KIE.AI ElevenLabs) ────────────────────
 tts:
-  # "fast" = turbo-2.5 ($0.03/1k chars)
-  # "quality" = multilingual-v2 ($0.06/1k chars, best for IT/ZH/EN)
-  # "dialogue" = v3 dialogue ($0.07/1k chars)
-  model: "quality"
-
-  # Voice IDs per language (ElevenLabs voice IDs)
-  # Find voices: https://elevenlabs.io/voice-library
+  model: quality
   voices:
     it:
-      voice_id: "pNInz6obpgDQGcFmaJgB"
-      name: "Italian Female"
+      voice_id: pNInz6obpgDQGcFmaJgB
+      name: Italian Female
     zh:
-      voice_id: "ThT5KcBeYPX3keUQqHPh"
-      name: "Chinese Female"
+      voice_id: ThT5KcBeYPX3keUQqHPh
+      name: Chinese Female
     en:
-      voice_id: "21m00Tcm4TlvDq8ikWAM"
-      name: "English Female (Rachel)"
-
-
-# ── Lip-Sync Settings (via KIE.AI) ────────────────────────
+      voice_id: 21m00Tcm4TlvDq8ikWAM
+      name: English Female (Rachel)
 lipsync:
-  # Model options:
-  # "kling_avatar_720p"   → $0.04/s, good quality
-  # "kling_avatar_1080p"  → $0.08/s, best quality
-  # "infinitetalk_480p"   → $0.015/s, budget
-  # "infinitetalk_720p"   → $0.06/s, balanced
-  model: "kling_avatar_720p"
-
-
-# ── Google Drive (optional) ─────────────────────────────────
+  model: kling_avatar_720p
 google_drive:
-  credentials_path: "credentials.json"
-  folder_name: "UGC_Videos"
+  credentials_path: credentials.json
+  folder_name: UGC_Videos
   make_public: true
-
-
-# ── Video Settings ───────────────────────────────────────────────
 video:
-  output_dir: "/tmp/ugc_videos"
-  default_size: "720x1280"
-  default_aspect_ratio: "9:16"
-  transition_type: "crossfade"
+  output_dir: /tmp/ugc_videos
+  default_size: 720x1280
+  default_aspect_ratio: '9:16'
+  transition_type: crossfade
   transition_duration: 0.3
-  video_codec: "libx264"
-  audio_codec: "aac"
+  video_codec: libx264
+  audio_codec: aac
   crf: 23
-  preset: "fast"
-
-
-# ── Polling Settings ──────────────────────────────────────────────
+  preset: fast
 polling:
   sora_interval: 60
   veo_interval: 45
   seedance_interval: 30
   max_retries: 30
   backoff_factor: 1.5
-
-
-# ── Frame Chaining Settings ─────────────────────────────────────
-# THE MOST CRITICAL FEATURE — ensures seamless video continuity
 frame_chaining:
-  # Extract frame this many seconds from the end of each clip
   extract_offset: 0.1
-  # JPEG quality for extracted frames (1-95)
   frame_quality: 95
-  # Prepend continuation hint to follow-up segment prompts
   add_continuation_prefix: true
-  continuation_prefix: "Seamlessly continuing from the previous frame: "
-
-
-# ── URL Extraction ───────────────────────────────────────────────
+  continuation_prefix: 'Seamlessly continuing from the previous frame: '
 url_extraction:
   timeout: 30
   max_length: 8000
-  user_agent: "Mozilla/5.0 (compatible; UGCVideoPro/2.1)"
-
-
-# ── Default Generation Preferences ───────────────────────────────
+  user_agent: Mozilla/5.0 (compatible; UGCVideoPro/2.1)
 defaults:
-  # Default video model (KIE.AI model key)
-  model: "veo_31_fast"
+  model: veo_31_fast
   duration: 15
-  # Default output language (it=Italian, zh=Chinese, en=English)
-  language: "it"
-  # Available models for UI dropdown
+  language: it
   available_models:
-    - key: "veo_31_fast"
-      name: "Veo 3.1 Fast"
-      description: "Google Veo 3.1 — best frame chaining, fast"
-      price: "$0.30/video"
-    - key: "veo_31_quality"
-      name: "Veo 3.1 Quality"
-      description: "Google Veo 3.1 — highest quality"
-      price: "$1.25/video"
-    - key: "seedance_15"
-      name: "Seedance 1.5 Pro"
-      description: "ByteDance — strong reference lock"
-      price: "$0.08/10s"
-    - key: "seedance_2"
-      name: "Seedance 2.0 (Coming Soon)"
-      description: "ByteDance — animation drama ready"
-      price: "TBD"
-    - key: "sora_2"
-      name: "Sora 2"
-      description: "OpenAI — stable generation"
-      price: "$0.175/10s"
-    - key: "runway"
-      name: "Runway"
-      description: "Runway — fast & affordable"
-      price: "$0.06/5s"
-    - key: "kling_30"
-      name: "Kling 3.0"
-      description: "Kling — with built-in audio"
-      price: "$0.20/s (1080p)"
-    - key: "hailuo"
-      name: "Hailuo 2.3"
-      description: "MiniMax — high fidelity"
-      price: "$0.15/6s"
-
-
-# ── Logging ──────────────────────────────────────────────────────
-log_level: "${LOG_LEVEL:-INFO}"
-log_file: ""
+  - key: veo_31_fast
+    name: Veo 3.1 Fast
+    description: Google Veo 3.1 — best frame chaining, fast
+    price: $0.30/video
+  - key: veo_31_quality
+    name: Veo 3.1 Quality
+    description: Google Veo 3.1 — highest quality
+    price: $1.25/video
+  - key: seedance_15
+    name: Seedance 1.5 Pro
+    description: ByteDance — strong reference lock
+    price: $0.08/10s
+  - key: seedance_2
+    name: Seedance 2.0 (Coming Soon)
+    description: ByteDance — animation drama ready
+    price: TBD
+  - key: sora_2
+    name: Sora 2
+    description: OpenAI — stable generation
+    price: $0.175/10s
+  - key: runway
+    name: Runway
+    description: Runway — fast & affordable
+    price: $0.06/5s
+  - key: kling_30
+    name: Kling 3.0
+    description: Kling — with built-in audio
+    price: $0.20/s (1080p)
+  - key: hailuo
+    name: Hailuo 2.3
+    description: MiniMax — high fidelity
+    price: $0.15/6s
+log_level: ${LOG_LEVEL:-INFO}
+log_file: ''
+director:
+  enabled: true
+  model: gemini-3-pro
+  fallback_model: gemini-3-flash
+  max_planning_retries: 2
