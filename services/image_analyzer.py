@@ -53,7 +53,8 @@ class ImageAnalyzer:
         self.config = config
         gemini_config = config.get("gemini", {})
         api_key = gemini_config.get("api_key", "")
-        self.model_name = gemini_config.get("model", "gemini-2.0-flash-exp")
+        self.model_name = gemini_config.get("model", "gemini-2.5-flash")
+        self.fallback_model = gemini_config.get("fallback_model", "gemini-2.0-flash")
         self._client = None
 
         if api_key:
@@ -63,7 +64,15 @@ class ImageAnalyzer:
                 self._client = genai.GenerativeModel(self.model_name)
                 logger.info(f"ImageAnalyzer initialized with model: {self.model_name}")
             except Exception as e:
-                logger.warning(f"Could not initialize Gemini for image analysis: {e}")
+                logger.warning(
+                    f"Could not initialize Gemini with {self.model_name}: {e} "
+                    f"\u2014 trying fallback model {self.fallback_model}"
+                )
+                try:
+                    self._client = genai.GenerativeModel(self.fallback_model)
+                    logger.info(f"ImageAnalyzer initialized with fallback: {self.fallback_model}")
+                except Exception as e2:
+                    logger.warning(f"Could not initialize Gemini fallback: {e2}")
 
     async def analyze(self, image_path: str) -> dict:
         """Analyze a product image and return structured description."""
@@ -75,7 +84,7 @@ class ImageAnalyzer:
             try:
                 return await self._analyze_with_gemini(image_path)
             except Exception as e:
-                logger.warning(f"Gemini image analysis failed: {e} — using basic fallback")
+                logger.warning(f"Gemini image analysis failed: {e} \u2014 using basic fallback")
 
         return await self._analyze_basic(image_path)
 
@@ -118,7 +127,7 @@ class ImageAnalyzer:
         return result
 
     async def _analyze_basic(self, image_path: str) -> dict:
-        """Basic fallback analysis using PIL — extracts dominant colors."""
+        """Basic fallback analysis using PIL \u2014 extracts dominant colors."""
         try:
             from PIL import Image
             import colorsys
@@ -161,7 +170,7 @@ class ImageAnalyzer:
                 "materials": ["unknown"],
                 "text_on_product": None,
                 "shape": "object",
-                "description": "Product image — detailed analysis unavailable",
+                "description": "Product image \u2014 detailed analysis unavailable",
                 "key_features": [],
             }
 

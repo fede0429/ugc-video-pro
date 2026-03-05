@@ -9,7 +9,7 @@
 # ============================================================
 
 
-# ── Web Application ─────────────────────────────────────────────
+# ── Web Application ─────────────────────────────────────────────────────
 web:
   # Host and port for the FastAPI server
   host: "0.0.0.0"
@@ -26,14 +26,14 @@ web:
   video_dir: "/app/data/videos"
 
 
-# ── Database ─────────────────────────────────────────────────────────
+# ── Database ───────────────────────────────────────────────────────────
 database:
   # Async PostgreSQL URL (via asyncpg driver)
   # Format: postgresql+asyncpg://user:password@host:port/dbname
   url: "${DATABASE_URL}"
 
 
-# ── Authentication ──────────────────────────────────────────────────
+# ── Authentication ────────────────────────────────────────────────────
 auth:
   # Secret key for signing JWT tokens — MUST be set in production
   jwt_secret: "${JWT_SECRET}"
@@ -50,7 +50,7 @@ auth:
   admin_password: "${ADMIN_PASSWORD:-changeme123}"
 
 
-# ── AI Model API Keys ─────────────────────────────────────────────
+# ── AI Model API Keys ─────────────────────────────────────────────────
 models:
   openai:
     # https://platform.openai.com/api-keys
@@ -70,12 +70,13 @@ models:
 gemini:
   api_key: "${GOOGLE_API_KEY}"
   # Model for script generation and image analysis
-  model: "gemini-2.0-flash-exp"
-  # Fallback model
-  fallback_model: "gemini-1.5-flash"
+  # Available: gemini-2.5-flash (recommended), gemini-2.5-pro, gemini-2.0-flash
+  model: "gemini-2.5-flash"
+  # Fallback model if primary fails
+  fallback_model: "gemini-2.0-flash"
 
 
-# ── Google Drive (optional, for cloud storage) ──────────────────
+# ── Google Drive (optional, for cloud storage) ────────────────
 google_drive:
   # Path to service account JSON or OAuth credentials file
   # Leave empty to disable Google Drive upload
@@ -86,7 +87,7 @@ google_drive:
   make_public: true
 
 
-# ── Video Settings ────────────────────────────────────────────────
+# ── Video Settings ────────────────────────────────────────────────────
 video:
   # Local directory for temporary/output video files
   output_dir: "/tmp/ugc_videos"
@@ -107,7 +108,7 @@ video:
   preset: "fast"    # Encoding speed: ultrafast, fast, medium, slow
 
 
-# ── Polling Settings (for async model APIs) ─────────────────────
+# ── Polling Settings (for async model APIs) ───────────────────
 polling:
   # How often to check if a job is done (seconds)
   sora_interval: 60
@@ -121,7 +122,7 @@ polling:
   backoff_factor: 1.5
 
 
-# ── Frame Chaining Settings ─────────────────────────────────────────
+# ── Frame Chaining Settings ───────────────────────────────────────
 frame_chaining:
   # Extract frame this many seconds from the end of each clip
   extract_offset: 0.1   # seconds before end
@@ -134,7 +135,7 @@ frame_chaining:
   continuation_prefix: "Seamlessly continuing from the previous frame: "
 
 
-# ── URL Extraction Settings ────────────────────────────────────────
+# ── URL Extraction Settings ──────────────────────────────────────
 url_extraction:
   # Request timeout in seconds
   timeout: 30
@@ -154,7 +155,7 @@ defaults:
   language: "zh"
 
 
-# ── Logging ──────────────────────────────────────────────────────────
+# ── Logging ────────────────────────────────────────────────────────────
 # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 log_level: "${LOG_LEVEL:-INFO}"
 
