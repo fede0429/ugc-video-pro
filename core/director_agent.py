@@ -39,6 +39,20 @@ from typing import Callable, Optional
 from services.kie_gateway import KieGateway
 from utils.logger import get_logger
 
+try:
+    from core.director_knowledge_base import (
+        get_production_context,
+        get_shot_prompt,
+        UGC_SHOT_LIBRARY,
+        HOOK_PATTERNS,
+        SCENE_PROGRESSIONS,
+        CAMERA_MOVEMENT_RULES,
+        PROMPT_TEMPLATES,
+    )
+    _KNOWLEDGE_BASE_AVAILABLE = True
+except ImportError:
+    _KNOWLEDGE_BASE_AVAILABLE = False
+
 logger = get_logger(__name__)
 
 
@@ -69,21 +83,21 @@ BUDGET_TIERS = {
 # Director System Prompt
 # ──────────────────────────────────────────────────────────────
 
-DIRECTOR_SYSTEM_PROMPT = """You are the Director Agent of UGC Video Pro — an AI video production system for e-commerce product videos.
+DIRECTOR_SYSTEM_PROMPT = """You are the Director Agent of UGC Video Pro — a professional AI director specialized in creating UGC (User-Generated Content) style product videos for e-commerce. You create videos that look like real influencer product demos, NOT simple image panning/zooming.
 
-Your role is like a film director: you analyze the product, plan the shoot, choose the right equipment (models), write the script, and supervise production. You make creative and budget decisions.
+## YOUR ROLE
+You are a top-tier short-form video director who specializes in TikTok/Instagram product showcase videos. Your videos should feel authentic, energetic, and conversion-focused — like a real creator demonstrating a product, not a slideshow.
 
 ## YOUR CAPABILITIES (Tools)
-You have access to these production tools:
-1. `analyze_product` — Analyze a product image to extract colors, materials, shape, brand
-2. `extract_url` — Extract product info from a URL
-3. `generate_script` — Generate a video script with scene prompts
-4. `select_model` — Choose the best video model based on quality tier and budget
+1. `analyze_product` — Analyze product image: colors, materials, shape, brand, category
+2. `extract_url` — Extract product info from URL
+3. `generate_script` — Generate scene-by-scene video script with per-model optimized prompts
+4. `select_model` — Choose video model (quality/budget tradeoff)
 5. `estimate_cost` — Calculate expected cost before generation
-6. `generate_video_segments` — Generate all video clips via frame chaining
+6. `generate_video_segments` — Generate all clips via frame chaining
 7. `stitch_video` — Combine clips into final video
-8. `generate_tts` — Generate voiceover in specified language(s)
-9. `generate_lipsync` — Apply lip-sync to avatar video
+8. `generate_tts` — Multi-language voiceover (Italian priority, Chinese, English)
+9. `generate_lipsync` — Avatar lip sync
 
 ## PRODUCTION RULES (MUST FOLLOW)
 1. **Product images are SACRED** — never alter, modify, or reimagine the product appearance
@@ -91,44 +105,83 @@ You have access to these production tools:
 3. **Budget limits are hard** — never exceed the budget tier. Downgrade model if needed
 4. **Three languages equally important** — Italian (priority), Chinese, English
 5. **Audio-First principle** — TTS audio defines timing, video follows audio rhythm
+6. **UGC Authentic Feel** — videos must look like real creator content, NOT corporate ads
+7. **Movement Variety** — NEVER repeat the same camera movement in consecutive segments
+8. **A/B-Roll Rhythm** — insert B-Roll every 2-3 A-Roll segments for visual breathing room
 
-## DECISION FRAMEWORK
-Given the inputs (images, URL, text, duration, language, quality tier), output a production plan as JSON:
+## UGC VIDEO STRUCTURE RULES
+- **First 3 seconds = HOOK** — Use a pattern interrupt, product reveal, or bold claim to stop the scroll
+- **Middle = DEMONSTRATE** — Show product in use with hands, show details, show results
+- **End = CTA** — Clear call-to-action in the viewer's language
+- **Energy curve**: High → Medium → High → Low → High (peaks at hook and CTA)
+- **B-Roll is 20-30% of total duration** — provides rhythm and breathing room
 
-```json
-{
-    "strategy": "brief description of creative approach",
-    "model_selection": {
-        "video_model": "model_key",
-        "reason": "why this model"
-    },
-    "segment_plan": {
-        "num_segments": N,
-        "segment_durations": [8, 8, 8, 6],
-        "scene_progression": ["establishing", "detail", "lifestyle", "hero"]
-    },
-    "estimated_cost_usd": 0.00,
-    "tts_plan": {
-        "languages": ["it", "zh", "en"],
-        "style": "warm, professional"
-    },
-    "quality_threshold": 0.7,
-    "max_retries": 1
-}
-```
+## SHOT TYPES (Use these in scene_progression)
+Opening: "hook_product_drop", "hook_hand_reveal", "hook_unboxing_pov", "hook_before_after", "hook_lifestyle_interrupt"
+Detail: "detail_360_orbit", "detail_macro_texture", "detail_feature_highlight", "detail_color_showcase"
+Demo: "demo_hand_use", "demo_application", "demo_comparison", "demo_result_reveal", "demo_pour_squeeze"
+Lifestyle: "lifestyle_in_use", "lifestyle_environment", "lifestyle_morning_routine", "lifestyle_social_proof"
+Hero: "hero_pedestal", "hero_golden_hour", "hero_splash_dynamic"
+Closing: "cta_product_array", "cta_satisfied_user", "cta_logo_reveal", "cta_hand_gesture"
+B-Roll: "broll_ambient_pour", "broll_hands_prep", "broll_environment_detail"
+
+## HOOK PATTERNS (Choose one for the opening)
+- "pain_point": Start with viewer's frustration, then introduce product
+- "result_first": Show amazing result immediately, build curiosity
+- "authority_claim": Establish expertise, then recommend
+- "curiosity_gap": Tease a secret, gradually reveal
+- "listicle_number": "3 reasons why..." structure
+- "social_proof": Show evidence others love it
+- "comparison_challenge": Put against alternatives
+- "transformation_story": Before/after personal story
+
+## CAMERA MOVEMENT VARIETY (Critical for UGC quality)
+Alternate between: orbit, push-in, pull-back, static, pan, tilt, dolly, handheld, top-down, low-angle, rack-focus
+NEVER use the same movement for consecutive segments.
+
+## MODEL CHARACTERISTICS
+- **Veo 3.1** — Best frame chaining (exact first frame), max 8s/clip, $0.30-1.25
+- **Seedance 1.5 Pro** — Strong reference lock, clips: 4/8/12s only, $0.08/10s, great value
+- **Sora 2** — Style reference (may drift), max 10s/clip, $0.175/10s
+- **Runway** — Fast generation, max 5s/clip, $0.06/5s, best for B-Roll
+- **Kling 3.0** — Built-in audio, max 15s/clip (3-15s range), $0.20/s at 1080p
+- **Hailuo 2.3** — High fidelity, max 6s/clip, $0.15/6s
 
 ## QUALITY TIERS
 - **economy**: Budget-friendly. Use Seedance 1.5 Pro or Runway. Max $0.60/video
 - **premium**: Best quality. Use Veo 3.1 Fast/Quality. Max $2.50/video
 - **china**: Optimized for Chinese market. Use Kling 3.0 or Hailuo. Max $1.50/video
 
-## MODEL CHARACTERISTICS
-- **Veo 3.1** — Best frame chaining (exact first frame), max 8s/clip, $0.30-1.25
-- **Seedance 1.5 Pro** — Strong reference lock, max 10s/clip, $0.08/10s, great value
-- **Sora 2** — Style reference (may drift), max 12s/clip, $0.175/10s
-- **Runway** — Fast generation, max 10s/clip, $0.06/5s
-- **Kling 3.0** — Built-in audio, max 10s/clip, $0.20/s at 1080p
-- **Hailuo 2.3** — High fidelity, max 6s/clip, $0.15/6s
+## DECISION FRAMEWORK
+Given the inputs, output a production plan as JSON:
+
+```json
+{
+    "strategy": "brief description of creative approach",
+    "hook_pattern": "pain_point|result_first|authority_claim|...",
+    "model_selection": {
+        "video_model": "model_key",
+        "broll_model": "runway",
+        "reason": "why this model"
+    },
+    "segment_plan": {
+        "num_segments": N,
+        "segment_durations": [4, 8, 5, 4, 8, 5],
+        "scene_progression": ["hook_hand_reveal", "detail_360_orbit", "demo_hand_use", "broll_environment_detail", "lifestyle_in_use", "cta_hand_gesture"],
+        "camera_movements": ["dolly_forward", "orbit", "static_closeup", "pan_right", "handheld", "slow_push_in"],
+        "roll_types": ["A", "A", "A", "B", "A", "A"]
+    },
+    "estimated_cost_usd": 0.00,
+    "tts_plan": {
+        "languages": ["it", "zh", "en"],
+        "style": "warm, energetic, authentic",
+        "hook_line": "The first sentence spoken in the video",
+        "cta_line": "The final call-to-action sentence"
+    },
+    "quality_threshold": 0.7,
+    "max_retries": 1
+}
+```
 
 Always respond with valid JSON only. No markdown, no explanation outside JSON."""
 
@@ -293,6 +346,62 @@ class DirectorAgent:
                 f"use this model unless budget makes it impossible."
             )
 
+        # ── Inject knowledge base context if available ──────
+        kb_context = ""
+        if _KNOWLEDGE_BASE_AVAILABLE:
+            try:
+                # Detect product category from analysis
+                product_type = product_analysis.get("type", "generic").lower()
+                category = _detect_product_category(product_type)
+
+                # Get recommended model key
+                model_key = user_model_override or budget['preferred_models'][0]
+
+                ctx = get_production_context(
+                    product_category=category,
+                    duration=duration,
+                    languages=languages,
+                    model_key=model_key,
+                )
+
+                # Build knowledge context for LLM
+                scene_tmpl = ctx["scene_template"]
+                hook_info = ctx["hook"]
+                demo_info = ctx["demo_actions"]
+                prompt_rules = ctx["prompt_rules"]
+
+                kb_context = f"""
+
+## KNOWLEDGE BASE RECOMMENDATIONS (Use these to guide your plan)
+
+### Recommended Scene Template: {scene_tmpl.get('name', 'N/A')}
+Segments: {len(scene_tmpl.get('segments', []))}
+Structure: {scene_tmpl.get('tts_script_structure', 'N/A')}
+Notes: {scene_tmpl.get('notes', 'N/A')}
+
+### Recommended Hook: {hook_info.get('name', 'N/A')}
+Description: {hook_info.get('description', 'N/A')}
+Visual: {hook_info.get('visual_hook', 'N/A')}
+
+### Product Category: {category}
+Demo Actions: {', '.join(demo_info.get('actions', [])[:5])}
+Key Features to Show: {', '.join(demo_info.get('key_features', [])[:4])}
+Recommended Environment: {', '.join(demo_info.get('environment', [])[:3])}
+
+### Model Prompt Rules ({model_key}):
+Strengths: {prompt_rules.get('strengths', 'N/A')}
+Prompt Style: {prompt_rules.get('prompt_style', 'N/A')}
+Must Include: {', '.join(prompt_rules.get('must_include', []))}
+Avoid: {', '.join(prompt_rules.get('avoid', []))}
+
+### Camera Rules:
+{CAMERA_MOVEMENT_RULES.get('variety_constraint', '')}
+"""
+                self._log_decision(f"Knowledge base injected: category={category}, template={scene_tmpl.get('name')}")
+            except Exception as e:
+                logger.warning(f"Knowledge base context injection failed: {e}")
+                kb_context = ""
+
         return f"""Plan a UGC product video production.
 
 ## Product
@@ -309,14 +418,16 @@ class DirectorAgent:
 - Preferred models for this tier: {', '.join(budget['preferred_models'])}
 - Number of product images: {num_images}
 {model_override_note}
-
+{kb_context}
 ## Instructions
-Create a production plan. Consider:
-1. How many segments? Each model has a max clip duration.
-2. Scene progression — hook viewers in first 3 seconds
-3. Camera variety — don't repeat same movements
-4. Budget — estimate total cost including TTS
-5. If duration <= model max, use 1 segment (no chaining needed)
+Create a production plan that looks like a REAL UGC creator demo, NOT a slideshow.
+1. Choose a hook pattern for the first 3 seconds (from the HOOK PATTERNS list)
+2. Plan scene_progression using specific shot types (from the SHOT TYPES list)
+3. Assign different camera_movements for each segment (NEVER repeat consecutive)
+4. Mark each segment as A-Roll or B-Roll (insert B-Roll every 2-3 A-Roll segments)
+5. Include hands/interaction shots — NOT just product floating/panning
+6. Budget — estimate total cost including TTS
+7. If duration <= model max, use 1 segment (no chaining needed)
 
 Return ONLY valid JSON matching the schema in your system prompt."""
 
@@ -817,3 +928,49 @@ Return ONLY valid JSON matching the schema in your system prompt."""
         llm_cost = 0.02
 
         return round(video_cost + tts_cost + llm_cost, 2)
+
+
+# ──────────────────────────────────────────────────────────────
+# Product Category Detection Helper
+# ──────────────────────────────────────────────────────────────
+
+def _detect_product_category(product_type: str) -> str:
+    """
+    Map a product type string from image analysis to a knowledge base category.
+
+    Args:
+        product_type: Free-form product type from ImageAnalyzer (e.g., "lipstick", "phone case")
+
+    Returns:
+        One of the PRODUCT_DEMO_ACTIONS keys
+    """
+    product_type = product_type.lower()
+
+    _CATEGORY_KEYWORDS = {
+        "skincare": ["serum", "cream", "moisturizer", "lotion", "cleanser", "toner",
+                     "sunscreen", "mask", "skincare", "face", "skin"],
+        "cosmetics": ["lipstick", "mascara", "foundation", "eyeshadow", "blush",
+                      "makeup", "cosmetic", "concealer", "palette", "eyeliner",
+                      "nail polish", "beauty"],
+        "tech_gadget": ["phone", "earbuds", "headphone", "watch", "smartwatch",
+                        "charger", "cable", "speaker", "gadget", "electronic",
+                        "tablet", "laptop", "keyboard", "mouse", "camera"],
+        "fashion": ["shirt", "dress", "jacket", "pants", "shoe", "sneaker",
+                    "bag", "handbag", "clothing", "apparel", "hat", "sunglasses",
+                    "scarf", "coat", "fashion", "garment", "t-shirt"],
+        "food_supplement": ["supplement", "vitamin", "protein", "powder", "capsule",
+                            "nutrition", "health", "probiotic", "collagen", "pill"],
+        "home_appliance": ["vacuum", "blender", "air purifier", "fan", "heater",
+                           "appliance", "iron", "dryer", "humidifier", "robot"],
+        "kitchen": ["pan", "pot", "knife", "cutting board", "kitchen", "cookware",
+                    "utensil", "food processor", "mixer", "oven", "grill"],
+        "jewelry_accessories": ["ring", "necklace", "bracelet", "earring", "watch",
+                                 "jewelry", "pendant", "chain", "accessory", "cufflink"],
+    }
+
+    for category, keywords in _CATEGORY_KEYWORDS.items():
+        for kw in keywords:
+            if kw in product_type:
+                return category
+
+    return "generic"

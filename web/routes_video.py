@@ -194,26 +194,43 @@ async def list_tasks(
     db: Annotated[AsyncSession, Depends(get_db)],
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
+    status_filter: Optional[str] = Query(default=None, alias="status"),
 ) -> VideoTaskList:
-    """Return a paginated list of the authenticated user's VideoTasks."""
+    """Return a paginated list of the authenticated user's VideoTasks.
+
+    Optional `status` query param filters by task status (e.g. ?status=processing
+    or ?status=pending,processing for multiple statuses).
+    """
     offset = (page - 1) * page_size
+
+    # Build base filter conditions
+    conditions = [
+        VideoTask.user_id == current_user.id,
+        VideoTask.is_deleted.is_(False),
+    ]
+
+    # Optional status filter (supports comma-separated: "pending,processing")
+    if status_filter:
+        status_values = [s.strip() for s in status_filter.split(",") if s.strip()]
+        valid_statuses = []
+        for sv in status_values:
+            try:
+                valid_statuses.append(TaskStatus(sv))
+            except ValueError:
+                pass
+        if valid_statuses:
+            conditions.append(VideoTask.status.in_(valid_statuses))
 
     # Total count
     total_result = await db.execute(
-        select(func.count(VideoTask.id)).where(
-            VideoTask.user_id == current_user.id,
-            VideoTask.is_deleted.is_(False),
-        )
+        select(func.count(VideoTask.id)).where(*conditions)
     )
     total: int = total_result.scalar_one()
 
     # Page of tasks
     tasks_result = await db.execute(
         select(VideoTask)
-        .where(
-            VideoTask.user_id == current_user.id,
-            VideoTask.is_deleted.is_(False),
-        )
+        .where(*conditions)
         .order_by(VideoTask.created_at.desc())
         .offset(offset)
         .limit(page_size)
