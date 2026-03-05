@@ -15,13 +15,437 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="css/style.css">
+<style>
+/* ── New Wizard: Multi-image upload grid ── */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+@media (max-width: 640px) {
+  .upload-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.upload-slot {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  gap: var(--sp-1);
+}
+.upload-slot:hover, .upload-slot.drag-over {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.08);
+}
+.upload-slot.primary {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.upload-slot.has-file {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.upload-slot .slot-label {
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  position: absolute;
+  top: 4px;
+  left: 6px;
+}
+.upload-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  position: absolute;
+  top: 0; left: 0;
+  border-radius: calc(var(--radius) - 2px);
+}
+.upload-slot.has-file img {
+  display: block;
+}
+.upload-slot.has-file .slot-add-icon,
+.upload-slot.has-file .slot-add-text {
+  display: none;
+}
+.upload-slot .slot-remove {
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.65);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  z-index: 2;
+}
+.upload-slot.has-file .slot-remove {
+  display: flex;
+}
+.upload-slot .slot-add-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ── Quality tier grid ── */
+.quality-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+@media (max-width: 600px) {
+  .quality-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.quality-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.quality-card:hover {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.06);
+}
+.quality-card.selected {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.1);
+}
+.quality-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.quality-card-title {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+.quality-card-desc {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.quality-card-price {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: auto;
+}
+.quality-card.selected .quality-card-title {
+  color: var(--accent);
+}
+
+/* ── Advanced model toggle ── */
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  user-select: none;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-2) 0;
+  border: none;
+  background: none;
+}
+.advanced-toggle:hover { color: var(--accent); }
+.advanced-toggle svg { flex-shrink: 0; transition: transform 0.2s; }
+.advanced-toggle.open svg { transform: rotate(180deg); }
+.advanced-models-wrap {
+  display: none;
+  margin-bottom: var(--sp-4);
+}
+.advanced-models-wrap.open {
+  display: block;
+}
+
+/* ── Language checkboxes ── */
+.lang-check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.lang-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+.lang-checkbox input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.lang-checkbox:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.09);
+}
+
+/* ── Duration presets ── */
+.duration-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+/* ── Pipeline progress ── */
+.pipeline-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: var(--sp-4) 0;
+}
+.pipeline-stage {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  position: relative;
+  padding-bottom: var(--sp-3);
+}
+.pipeline-stage:last-child {
+  padding-bottom: 0;
+}
+.pipeline-stage-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 36px;
+  flex-shrink: 0;
+}
+.pipeline-stage-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  position: relative;
+  z-index: 1;
+  transition: border-color 0.3s, background 0.3s;
+  flex-shrink: 0;
+}
+.pipeline-stage-line {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  background: var(--border);
+  margin-top: 2px;
+  transition: background 0.3s;
+}
+.pipeline-stage:last-child .pipeline-stage-line {
+  display: none;
+}
+.pipeline-stage-content {
+  padding-top: 6px;
+  flex: 1;
+}
+.pipeline-stage-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.pipeline-stage-status {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Active stage */
+.pipeline-stage.active .pipeline-stage-dot {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.15);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+.pipeline-stage.active .pipeline-stage-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+.pipeline-stage.active .pipeline-stage-status {
+  color: var(--accent);
+}
+
+/* Done stage */
+.pipeline-stage.done .pipeline-stage-dot {
+  border-color: #22c55e;
+  background: rgba(34,197,94,0.12);
+}
+.pipeline-stage.done .pipeline-stage-line {
+  background: #22c55e;
+}
+.pipeline-stage.done .pipeline-stage-label {
+  color: var(--text-primary);
+}
+.pipeline-stage.done .pipeline-stage-dot::after {
+  content: '✓';
+  font-size: 14px;
+  color: #22c55e;
+  font-weight: 700;
+}
+.pipeline-stage.done .pipeline-stage-dot > span {
+  display: none;
+}
+
+/* Progress panel */
+.progress-panel {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-5);
+  background: var(--bg-card);
+  margin-bottom: var(--sp-4);
+}
+.progress-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4);
+  gap: var(--sp-3);
+}
+.progress-panel-title {
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+}
+.progress-segment-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.progress-overall-bar-wrap {
+  height: 6px;
+  background: var(--bg-hover);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: var(--sp-5);
+}
+.progress-overall-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #818cf8);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.progress-complete-box {
+  text-align: center;
+  padding: var(--sp-5) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.progress-complete-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+.progress-complete-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: #22c55e;
+}
+.progress-complete-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Spinner inside button */
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Optional URL/text fields inside step 1 */
+.step1-optional {
+  margin-top: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.optional-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+.optional-divider::before,
+.optional-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* mode auto-detection hint */
+.mode-auto-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-xs);
+  background: rgba(99,102,241,0.1);
+  color: var(--accent);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-top: var(--sp-3);
+}
+</style>
 </head>
 <body>
 
 <!-- Mobile Sidebar Backdrop -->
 <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 
-<!-- ══ Sidebar ════════════════════════════════════════════════════════════ -->
+<!-- ══ Sidebar ════════════════════════════════════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <a class="sidebar-logo" href="#">
@@ -97,7 +521,7 @@
   </div>
 </aside>
 
-<!-- ══ Main Content ══════════════════════════════════════════════════════════ -->
+<!-- ══ Main Content ════════════════════════════════════════════════════════════ -->
 <div class="main-content">
 
   <!-- Header -->
@@ -125,42 +549,64 @@
   <main class="page-content">
 
     <!-- ════════════════════════════════════════════════════════════
-         Section 1: New Video (Wizard)
+         Section 1: New Video (Wizard) — REWRITTEN
          ════════════════════════════════════════════════════════════ -->
     <section class="page-section active" id="section-new-video">
       <div class="wizard-container">
 
-        <!-- Step Indicator -->
-        <div class="wizard-progress">
+        <!-- Step Indicator (3 steps only; progress view is step 4 but hidden from indicator) -->
+        <div class="wizard-progress" id="wizardProgressArea">
           <div class="wizard-steps-header" id="wizardStepsHeader">
             <!-- Rendered by JS -->
           </div>
           <div class="wizard-progress-bar-wrap">
-            <div class="wizard-progress-bar" id="wizardProgressBar" style="width:16.6%"></div>
+            <div class="wizard-progress-bar" id="wizardProgressBar" style="width:33.33%"></div>
           </div>
-          <p class="wizard-step-label">步骤 <span id="currentStepNum">1</span> / 6</p>
+          <p class="wizard-step-label">步骤 <span id="currentStepNum">1</span> / 3</p>
         </div>
 
-        <!-- ── Step 1: Select Mode ── -->
+        <!-- ── Step 1: Upload Product Content ── -->
         <div class="wizard-body" id="wizardStep1">
-          <h2 class="wizard-step-title">选择生成模式</h2>
-          <p class="wizard-step-desc">请选择您的视频生成方式：</p>
+          <h2 class="wizard-step-title">上传产品内容</h2>
+          <p class="wizard-step-desc">上传产品图片，AI将自动识别生成模式</p>
 
-          <div class="mode-grid">
-            <div class="mode-card" data-mode="image_to_video" role="button" tabindex="0">
-              <div class="mode-card-icon">🖼</div>
-              <div class="mode-card-title">图片转视频</div>
-              <div class="mode-card-desc">上传产品图，AI生成展示视频</div>
+          <!-- Multi-image upload grid (up to 5) -->
+          <div class="upload-grid" id="imageUploadGrid">
+            <!-- Slots rendered by JS -->
+          </div>
+
+          <!-- Auto-mode indicator -->
+          <div id="autoModeIndicator" style="display:none;margin-bottom:var(--sp-4);">
+            <span class="mode-auto-badge" id="autoModeBadge">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span id="autoModeText">自动检测模式</span>
+            </span>
+          </div>
+
+          <!-- Optional fields -->
+          <div class="step1-optional">
+            <div class="optional-divider">可选信息（提升生成质量）</div>
+
+            <div class="form-group">
+              <label class="form-label" for="productUrl">产品链接 URL（可选）</label>
+              <input
+                type="url"
+                id="productUrl"
+                class="form-input"
+                placeholder="https://www.amazon.com/dp/B09XXXXX"
+              >
+              <span class="form-hint">AI将从链接提取产品信息</span>
             </div>
-            <div class="mode-card" data-mode="text_to_video" role="button" tabindex="0">
-              <div class="mode-card-icon">✍️</div>
-              <div class="mode-card-title">文字转视频</div>
-              <div class="mode-card-desc">描述产品，AI凭文字生成视频</div>
-            </div>
-            <div class="mode-card" data-mode="url_to_video" role="button" tabindex="0">
-              <div class="mode-card-icon">🔗</div>
-              <div class="mode-card-title">URL参考转视频</div>
-              <div class="mode-card-desc">提供商品链接+图片，AI提取内容</div>
+
+            <div class="form-group">
+              <label class="form-label" for="productText">产品描述（可选）</label>
+              <textarea
+                id="productText"
+                class="form-textarea"
+                placeholder="描述产品特点、材质、卖点、适用场景等，越详细效果越好..."
+                rows="3"
+              ></textarea>
+              <span class="form-hint">可选 — 补充说明有助于提高生成质量</span>
             </div>
           </div>
 
@@ -172,48 +618,140 @@
           </div>
         </div>
 
-        <!-- ── Step 2: Select Model ── -->
+        <!-- ── Step 2: Configure Output ── -->
         <div class="wizard-body" id="wizardStep2" style="display:none;">
-          <h2 class="wizard-step-title">选择 AI 模型</h2>
-          <p class="wizard-step-desc">选择用于生成视频的 AI 模型：</p>
+          <h2 class="wizard-step-title">输出设置</h2>
+          <p class="wizard-step-desc">配置视频时长、语言和质量等级</p>
 
-          <div class="model-grid">
-            <div class="model-card" data-model="veo_31_pro" role="button" tabindex="0">
-              <div class="model-card-header">
-                <span class="model-card-name">💎 Veo 3.1 Pro</span>
-                <span class="model-card-badge">推荐</span>
-              </div>
-              <div class="model-card-clip">最长 8 秒/片段</div>
+          <!-- Duration -->
+          <div class="form-group" style="margin-bottom:var(--sp-5);">
+            <label class="form-label">视频时长</label>
+            <div class="duration-presets" id="durationPresets">
+              <button class="duration-btn" data-val="30">30秒</button>
+              <button class="duration-btn" data-val="60">60秒</button>
+              <button class="duration-btn" data-val="90">90秒</button>
             </div>
-            <div class="model-card" data-model="veo_3_pro" role="button" tabindex="0">
-              <div class="model-card-header">
-                <span class="model-card-name">⭐ Veo 3.0 Pro</span>
-              </div>
-              <div class="model-card-clip">最长 8 秒/片段</div>
+            <div style="display:flex;gap:var(--sp-3);align-items:center;">
+              <input
+                type="number"
+                id="customDuration"
+                class="form-input"
+                style="max-width:130px;"
+                placeholder="自定义秒数"
+                min="1"
+              >
+              <button class="btn btn-secondary btn-sm" id="applyCustomDuration">应用</button>
             </div>
-            <div class="model-card" data-model="veo_3" role="button" tabindex="0">
-              <div class="model-card-header">
-                <span class="model-card-name">🎦 Veo 3.0</span>
-              </div>
-              <div class="model-card-clip">最长 8 秒/片段</div>
+            <span class="form-error" id="customDurationError"></span>
+          </div>
+
+          <!-- Language (multi-select) -->
+          <div class="form-group" style="margin-bottom:var(--sp-5);">
+            <label class="form-label">旁白语言（可多选，至少一种）</label>
+            <div class="lang-check-grid">
+              <label class="lang-checkbox">
+                <input type="checkbox" name="lang" value="it" id="langIt" checked>
+                🇮🇹 Italiano
+              </label>
+              <label class="lang-checkbox">
+                <input type="checkbox" name="lang" value="zh" id="langZh">
+                🇨🇳 中文
+              </label>
+              <label class="lang-checkbox">
+                <input type="checkbox" name="lang" value="en" id="langEn">
+                🇬🇧 English
+              </label>
             </div>
-            <div class="model-card" data-model="seedance_2" role="button" tabindex="0">
-              <div class="model-card-header">
-                <span class="model-card-name">🔒 Seedance 2.0</span>
+            <span class="form-hint" id="langHint">将为每种语言生成独立的TTS语音</span>
+          </div>
+
+          <!-- Quality Tier -->
+          <div class="form-group" style="margin-bottom:var(--sp-3);">
+            <label class="form-label">质量等级（自动选择最优模型）</label>
+            <div class="quality-grid">
+
+              <div class="quality-card" data-tier="economy" role="button" tabindex="0">
+                <div class="quality-card-icon">⚡</div>
+                <div class="quality-card-title">经济版</div>
+                <div class="quality-card-desc">高性价比 · Seedance 1.5</div>
+                <div class="quality-card-price">~$0.04/片段</div>
               </div>
-              <div class="model-card-clip">最长 10 秒/片段</div>
+
+              <div class="quality-card" data-tier="premium" role="button" tabindex="0">
+                <div class="quality-card-icon">⭐</div>
+                <div class="quality-card-title">高质量版</div>
+                <div class="quality-card-desc">最佳画质 · Veo 3.1 Quality</div>
+                <div class="quality-card-price">~$1.25/片段</div>
+              </div>
+
+              <div class="quality-card" data-tier="china" role="button" tabindex="0">
+                <div class="quality-card-icon">🎵</div>
+                <div class="quality-card-title">中国市场版</div>
+                <div class="quality-card-desc">含原生音频 · Kling 3.0</div>
+                <div class="quality-card-price">特价</div>
+              </div>
+
             </div>
-            <div class="model-card" data-model="sora_2_pro" role="button" tabindex="0">
-              <div class="model-card-header">
-                <span class="model-card-name">🚀 Sora 2 Pro</span>
+
+            <!-- Advanced model selector (collapsed by default) -->
+            <button class="advanced-toggle" id="advancedToggleBtn" type="button">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              展开全部模型（高级选项）
+            </button>
+            <div class="advanced-models-wrap" id="advancedModelsWrap">
+              <p style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:var(--sp-3);">手动选择模型（将覆盖质量等级设置）</p>
+              <div class="model-grid" id="advancedModelGrid">
+                <div class="model-card" data-model="veo_31_fast" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">💎 Veo 3.1 Fast</span>
+                    <span class="model-card-badge">推荐</span>
+                  </div>
+                  <div class="model-card-clip">最长 8 秒/片段 · $0.30</div>
+                </div>
+                <div class="model-card" data-model="veo_31_quality" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">⭐ Veo 3.1 Quality</span>
+                  </div>
+                  <div class="model-card-clip">最长 8 秒/片段 · $1.25</div>
+                </div>
+                <div class="model-card" data-model="seedance_15" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🎬 Seedance 1.5 Pro</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · $0.035起</div>
+                </div>
+                <div class="model-card" data-model="seedance_2" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🔒 Seedance 2.0</span>
+                    <span class="model-card-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">即将上线</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · 动画剧专用</div>
+                </div>
+                <div class="model-card" data-model="sora_2" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">⚡ Sora 2</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · $0.175</div>
+                </div>
+                <div class="model-card" data-model="runway" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🎥 Runway</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · $0.06起</div>
+                </div>
+                <div class="model-card" data-model="kling_30" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🎵 Kling 3.0</span>
+                  </div>
+                  <div class="model-card-clip">最长 10 秒/片段 · 含音频</div>
+                </div>
+                <div class="model-card" data-model="hailuo" role="button" tabindex="0">
+                  <div class="model-card-header">
+                    <span class="model-card-name">🌊 Hailuo 2.3</span>
+                  </div>
+                  <div class="model-card-clip">最长 6 秒/片段 · $0.15</div>
+                </div>
               </div>
-              <div class="model-card-clip">最长 25 秒/片段</div>
-            </div>
-            <div class="model-card" data-model="sora_2" role="button" tabindex="0">
-              <div class="model-card-header">
-                <span class="model-card-name">⚡ Sora 2</span>
-              </div>
-              <div class="model-card-clip">最长 12 秒/片段</div>
             </div>
           </div>
 
@@ -225,170 +763,75 @@
           </div>
         </div>
 
-        <!-- ── Step 3: Select Duration ── -->
+        <!-- ── Step 3: Confirm & Generate ── -->
         <div class="wizard-body" id="wizardStep3" style="display:none;">
-          <h2 class="wizard-step-title">选择视频时长</h2>
-          <p class="wizard-step-desc" id="durationDesc">请选择目标视频总时长：</p>
-
-          <div class="duration-grid" id="durationGrid">
-            <!-- Rendered dynamically -->
-          </div>
-
-          <div class="duration-custom-wrap">
-            <div class="form-group">
-              <label class="form-label" for="customDuration">自定义时长（秒）</label>
-              <div style="display:flex;gap:var(--sp-3);align-items:center;">
-                <input
-                  type="number"
-                  id="customDuration"
-                  class="form-input"
-                  style="max-width:140px;"
-                  placeholder="例如：40"
-                  min="1"
-                >
-                <button class="btn btn-secondary btn-sm" id="applyCustomDuration">应用</button>
-              </div>
-              <span class="form-hint" id="customDurationHint"></span>
-              <span class="form-error" id="customDurationError"></span>
-            </div>
-          </div>
-
-          <div class="wizard-nav">
-            <button class="btn btn-secondary" id="step3Back">上一步</button>
-            <div class="wizard-nav-right">
-              <button class="btn btn-primary" id="step3Next" disabled>下一步</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Step 4: Select Language ── -->
-        <div class="wizard-body" id="wizardStep4" style="display:none;">
-          <h2 class="wizard-step-title">选择旁白语言</h2>
-          <p class="wizard-step-desc">选择视频脚本和旁白的语言：</p>
-
-          <div class="lang-grid">
-            <button class="lang-btn" data-lang="zh">🇨🇳 中文</button>
-            <button class="lang-btn" data-lang="en">🇬🇧 English</button>
-            <button class="lang-btn" data-lang="it">🇮🇹 Italiano</button>
-          </div>
-
-          <div class="wizard-nav">
-            <button class="btn btn-secondary" id="step4Back">上一步</button>
-            <div class="wizard-nav-right">
-              <button class="btn btn-primary" id="step4Next" disabled>下一步</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Step 5: Upload Content ── -->
-        <div class="wizard-body" id="wizardStep5" style="display:none;">
-          <h2 class="wizard-step-title">上传内容</h2>
-          <p class="wizard-step-desc" id="step5Desc">根据选择的模式上传相应内容：</p>
-
-          <!-- image_to_video: Image upload -->
-          <div id="inputImageUpload">
-            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="点击或拖拽上传图片">
-              <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
-              <div class="upload-icon">🖼</div>
-              <div class="upload-title">点击上传或拖拽图片至此</div>
-              <div class="upload-desc">支持 JPG、PNG、WebP · 最大 20MB · 保留原图质量</div>
-            </div>
-            <div class="upload-preview" id="uploadPreview">
-              <img id="uploadPreviewImg" src="" alt="预览">
-              <div class="upload-file-info">
-                <div class="upload-filename" id="uploadFilename"></div>
-                <div class="upload-filesize" id="uploadFilesize"></div>
-              </div>
-              <button class="upload-remove" id="uploadRemove" aria-label="移除图片">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- text_to_video: Text description -->
-          <div id="inputTextDesc" style="display:none;">
-            <div class="form-group">
-              <label class="form-label" for="productText">产品描述</label>
-              <textarea
-                id="productText"
-                class="form-textarea"
-                placeholder="例如：一款无线降噪耳机，銀色金属外壳，旋转折叠设计，适合商务出行。请尽量详细描述产品特点、材质、卖点等。"
-                rows="6"
-              ></textarea>
-              <span class="form-hint">描述越详细，生成效果越好</span>
-            </div>
-          </div>
-
-          <!-- url_to_video: URL + image -->
-          <div id="inputUrlImage" style="display:none;">
-            <div class="form-group" style="margin-bottom:var(--sp-5);">
-              <label class="form-label" for="productUrl">商品链接 URL</label>
-              <input
-                type="url"
-                id="productUrl"
-                class="form-input"
-                placeholder="https://www.amazon.com/dp/B09XXXXX"
-              >
-              <span class="form-hint">AI将提取链接中的产品信息</span>
-            </div>
-            <div class="upload-zone" id="uploadZoneUrl" role="button" tabindex="0" aria-label="点击或拖拽上传图片">
-              <input type="file" id="imageFileInputUrl" accept="image/jpeg,image/png,image/webp" style="display:none;">
-              <div class="upload-icon">🖼</div>
-              <div class="upload-title">上传产品图片</div>
-              <div class="upload-desc">支持 JPG、PNG、WebP · 最大 20MB</div>
-            </div>
-            <div class="upload-preview" id="uploadPreviewUrl">
-              <img id="uploadPreviewImgUrl" src="" alt="预览">
-              <div class="upload-file-info">
-                <div class="upload-filename" id="uploadFilenameUrl"></div>
-                <div class="upload-filesize" id="uploadFilesizeUrl"></div>
-              </div>
-              <button class="upload-remove" id="uploadRemoveUrl" aria-label="移除图片">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Optional description (for image/url modes) -->
-          <div id="optionalDescWrap" style="margin-top:var(--sp-5);display:none;">
-            <div class="divider"></div>
-            <div class="form-group">
-              <label class="form-label" for="optionalDesc">产品说明（可选）</label>
-              <textarea
-                id="optionalDesc"
-                class="form-textarea"
-                placeholder="可补充说明产品材质、功能、卖点、适用场景等，辅助AI更准确地生成视频..."
-                rows="3"
-              ></textarea>
-              <span class="form-hint">可选 — 添加说明有助于提高生成质量</span>
-            </div>
-          </div>
-
-          <div class="wizard-nav">
-            <button class="btn btn-secondary" id="step5Back">上一步</button>
-            <div class="wizard-nav-right">
-              <button class="btn btn-primary" id="step5Next" disabled>下一步</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Step 6: Confirm & Generate ── -->
-        <div class="wizard-body" id="wizardStep6" style="display:none;">
           <h2 class="wizard-step-title">确认生成配置</h2>
           <p class="wizard-step-desc">请核对以下配置，确认无误后开始生成：</p>
 
           <div class="summary-grid" id="summaryGrid">
-            <!-- Rendered dynamically -->
+            <!-- Rendered by JS -->
           </div>
 
           <div class="wizard-nav">
-            <button class="btn btn-secondary" id="step6Back">上一步</button>
+            <button class="btn btn-secondary" id="step3Back">上一步</button>
             <div class="wizard-nav-right">
               <button class="btn btn-primary btn-lg" id="startGenerateBtn">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3Z" fill="currentColor"/></svg>
                 开始生成
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- ── Step 4: Real-time Progress (not in indicator) ── -->
+        <div class="wizard-body" id="wizardStep4" style="display:none;">
+          <h2 class="wizard-step-title">视频生成中</h2>
+          <p class="wizard-step-desc" id="progressTaskId">正在处理您的任务...</p>
+
+          <!-- Progress panel -->
+          <div class="progress-panel">
+            <div class="progress-panel-header">
+              <span class="progress-panel-title">生成进度</span>
+              <span class="progress-segment-label" id="progressSegmentLabel">等待开始</span>
+            </div>
+            <!-- Overall bar -->
+            <div class="progress-overall-bar-wrap">
+              <div class="progress-overall-bar" id="progressOverallBar" style="width:0%"></div>
+            </div>
+            <!-- Pipeline stages -->
+            <div class="pipeline-stages" id="pipelineStages">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Complete state (hidden until done) -->
+          <div class="progress-complete-box" id="progressCompleteBox" style="display:none;">
+            <div class="progress-complete-icon">🎉</div>
+            <div class="progress-complete-title">视频生成完成！</div>
+            <div class="progress-complete-desc">您的视频已准备好，可以下载了</div>
+            <div style="display:flex;gap:var(--sp-3);flex-wrap:wrap;justify-content:center;">
+              <button class="btn btn-primary btn-lg" id="progressDownloadBtn" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                下载视频
+              </button>
+              <button class="btn btn-secondary" id="progressGoToVideosBtn">前往我的视频</button>
+            </div>
+          </div>
+
+          <!-- Failed state -->
+          <div class="progress-complete-box" id="progressFailedBox" style="display:none;">
+            <div class="progress-complete-icon">❌</div>
+            <div class="progress-complete-title" style="color:#ef4444;">生成失败</div>
+            <div class="progress-complete-desc" id="progressErrorMsg">生成过程中发生错误，请重试</div>
+            <div style="display:flex;gap:var(--sp-3);">
+              <button class="btn btn-primary" id="progressRetryBtn">重新生成</button>
+              <button class="btn btn-secondary" id="progressGoToVideosBtn2">前往我的视频</button>
+            </div>
+          </div>
+
+          <div class="wizard-nav" style="margin-top:var(--sp-4);">
+            <button class="btn btn-ghost btn-sm" id="progressCancelBtn">取消并返回</button>
+            <div></div>
           </div>
         </div>
 
@@ -480,7 +923,7 @@
           <h3 style="margin-bottom:var(--sp-4);">账户信息</h3>
           <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
             <div class="form-group">
-              <label class="form-label">邮筱地址</label>
+              <label class="form-label">邮筊地址</label>
               <input type="email" class="form-input" id="settingsEmail" disabled>
             </div>
             <div class="form-group">
@@ -538,7 +981,7 @@
         <table>
           <thead>
             <tr>
-              <th>邮筱</th>
+              <th>邮筊</th>
               <th>名称</th>
               <th>角色</th>
               <th>状态</th>
@@ -595,7 +1038,7 @@
 
 </div><!-- /main-content -->
 
-<!-- ══ Edit User Modal ═══════════════════════════════════════════════════ -->
+<!-- ══ Edit User Modal ══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="editUserModal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editUserModalTitle">
     <div class="modal-header">
@@ -607,7 +1050,7 @@
     <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
       <input type="hidden" id="editUserId">
       <div class="form-group">
-        <label class="form-label">邮筱</label>
+        <label class="form-label">邮筊</label>
         <input type="email" id="editUserEmail" class="form-input" disabled>
       </div>
       <div class="form-group">
@@ -632,7 +1075,7 @@
   </div>
 </div>
 
-<!-- ══ Confirm Delete Modal ══════════════════════════════════════════════════ -->
+<!-- ══ Confirm Delete Modal ══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="confirmDeleteModal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmDeleteTitle">
     <div class="modal-header">
@@ -649,11 +1092,11 @@
   </div>
 </div>
 
-<!-- ══ Toast Container ═══════════════════════════════════════════════════ -->
+<!-- ══ Toast Container ══════════════════════════════════════════════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/api.js"></script>
-<script src="js/dashboard.js"></script>
+<script src="js/api.js?v=1772674381"></script>
+<script src="js/dashboard.js?v=1772674400"></script>
 <script src="js/admin.js"></script>
 <script>
   Dashboard.init();

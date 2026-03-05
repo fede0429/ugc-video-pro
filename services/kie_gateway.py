@@ -103,7 +103,7 @@ class KieGateway:
             "Content-Type": "application/json",
         }
 
-    # ── Task Creation ───────────────────────────────────────
+    # ── Task Creation ───────────────────────────────────────────────
 
     async def create_task(
         self,
@@ -148,7 +148,7 @@ class KieGateway:
                     raise RuntimeError(
                         f"KIE createTask error {resp.status}: {resp_text[:500]}"
                     )
-                data = await resp.json()
+                data = await resp.json(content_type=None)
 
         code = data.get("code", 0)
         if code != 200:
@@ -162,7 +162,7 @@ class KieGateway:
         logger.info(f"KIE task created: {task_id} (model={model})")
         return KieTask(task_id=task_id, model=model)
 
-    # ── Task Polling ────────────────────────────────────────
+    # ── Task Polling ────────────────────────────────────────────────
 
     async def query_task(self, task_id: str) -> KieTask:
         """
@@ -184,7 +184,7 @@ class KieGateway:
                     raise RuntimeError(
                         f"KIE recordInfo error {resp.status}: {resp_text[:300]}"
                     )
-                data = await resp.json()
+                data = await resp.json(content_type=None)
 
         code = data.get("code", 0)
         if code != 200:
@@ -304,7 +304,7 @@ class KieGateway:
             f"({retries * interval / 60:.1f} min)"
         )
 
-    # ── File Download ───────────────────────────────────────
+    # ── File Download ───────────────────────────────────────────────
 
     async def download(
         self,
@@ -342,7 +342,7 @@ class KieGateway:
         )
         return output_path
 
-    # ── Chat API (OpenAI-compatible) ────────────────────────
+    # ── Chat API (OpenAI-compatible) ──────────────────────────────────
 
     async def chat_completion(
         self,
@@ -390,7 +390,7 @@ class KieGateway:
                     raise RuntimeError(
                         f"KIE chat error {resp.status}: {resp_text[:500]}"
                     )
-                data = await resp.json()
+                data = await resp.json(content_type=None)
 
         choices = data.get("choices", [])
         if not choices:
@@ -400,7 +400,7 @@ class KieGateway:
         logger.info(f"KIE chat response: {len(content)} chars")
         return content
 
-    # ── Credit Check ────────────────────────────────────────
+    # ── Credit Check ───────────────────────────────────────────────
 
     async def check_credits(self) -> dict:
         """Check remaining credits on KIE.AI account."""
@@ -414,6 +414,6 @@ class KieGateway:
             ) as resp:
                 if resp.status != 200:
                     return {"error": f"HTTP {resp.status}"}
-                data = await resp.json()
+                data = await resp.json(content_type=None)
 
         return data.get("data", data)

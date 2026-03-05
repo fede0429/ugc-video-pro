@@ -77,9 +77,9 @@ async def generate_video(
     db: Annotated[AsyncSession, Depends(get_db)],
     # --- multipart form fields ---
     mode: str = Form(..., pattern="^(text_to_video|image_to_video|url_to_video)$"),
-    model: str = Form(..., pattern="^(sora_2|sora_2_pro|seedance_2|veo_3|veo_3_pro|veo_31_pro)$"),
+    model: str = Form(..., pattern="^(veo_31_fast|veo_31_quality|seedance_15|seedance_2|sora_2|sora_2_pro|runway|kling_30|hailuo|veo_3|veo_3_pro|veo_31_pro)$"),
     duration: int = Form(..., ge=4, le=600),
-    language: str = Form(default="en", pattern="^(zh|en|it)$"),
+    language: str = Form(default="it", pattern="^(zh|en|it)(,(zh|en|it))*$"),
     aspect_ratio: str = Form(default="9:16", pattern="^(9:16|16:9)$"),
     text_prompt: Optional[str] = Form(default=None),
     url: Optional[str] = Form(default=None),
