@@ -543,6 +543,85 @@ class KieGateway:
         )
         return output_path
 
+    # ── File Upload ───────────────────────────────────────
+
+    async def upload_image(
+        self,
+        file_path: str,
+    ) -> str:
+        """
+        Upload a local image to KIE.AI and get an HTTP URL back.
+
+        Uses the base64 upload API (free, files auto-delete after 3 days).
+        This is needed because some models (Kling 3.0, Kling 2.6, Hailuo)
+        reject base64 data URLs and require actual HTTP URLs.
+
+        Args:
+            file_path: Local path to image file (jpeg, jpg, png)
+
+        Returns:
+            HTTP URL of the uploaded image (downloadUrl)
+
+        Raises:
+            RuntimeError: If upload fails
+        """
+        import base64 as b64_mod
+
+        path = Path(file_path)
+        if not path.exists():
+            raise RuntimeError(f"Image file not found: {file_path}")
+
+        # Read and encode
+        with open(file_path, "rb") as f:
+            img_bytes = f.read()
+        img_b64 = b64_mod.b64encode(img_bytes).decode()
+
+        # Determine MIME type
+        suffix = path.suffix.lower()
+        mime_map = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+        }
+        mime = mime_map.get(suffix, "image/jpeg")
+        base64_data = f"data:{mime};base64,{img_b64}"
+
+        # Upload via KIE.AI base64 endpoint
+        url = f"{KIE_BASE_URL}/api/file-base64-upload"
+        body = {
+            "base64Data": base64_data,
+            "uploadPath": "ugc-uploads",
+            "fileName": path.name,
+        }
+
+        logger.info(f"KIE upload_image: {path.name} ({len(img_bytes) / 1024:.1f} KB)")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url,
+                json=body,
+                headers=self._headers(),
+                timeout=aiohttp.ClientTimeout(total=60),
+            ) as resp:
+                resp_text = await resp.text()
+                if resp.status != 200:
+                    raise RuntimeError(
+                        f"KIE file upload error {resp.status}: {resp_text[:500]}"
+                    )
+                data = await resp.json(content_type=None)
+
+        if not data.get("success"):
+            raise RuntimeError(
+                f"KIE file upload failed: {data.get('msg', 'Unknown error')}"
+            )
+
+        download_url = data.get("data", {}).get("downloadUrl", "")
+        if not download_url:
+            raise RuntimeError(f"No downloadUrl in KIE upload response: {data}")
+
+        logger.info(f"KIE upload_image success: {download_url[:80]}...")
+        return download_url
+
     # ── Chat API (OpenAI-compatible) ────────────────────────
 
     async def chat_completion(
