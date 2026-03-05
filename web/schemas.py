@@ -99,13 +99,13 @@ class VideoGenerateRequest(BaseModel):
         description="Generation mode",
     )
     model: str = Field(
-        pattern="^(sora_2|sora_2_pro|seedance_2|veo_3|veo_3_pro|veo_31_pro)$",
+        pattern="^(auto|veo_31_fast|veo_31_quality|seedance_15|seedance_2|sora_2|sora_2_pro|runway|kling_30|hailuo|veo_3|veo_3_pro|veo_31_pro)$",
         description="AI model key",
     )
     duration: int = Field(ge=4, le=600, description="Total video duration in seconds")
     language: str = Field(
-        default="en",
-        pattern="^(zh|en|it)$",
+        default="it",
+        pattern="^(zh|en|it)(,(zh|en|it))*$",
         description="Narration language",
     )
     aspect_ratio: str = Field(
@@ -122,6 +122,11 @@ class VideoGenerateRequest(BaseModel):
         default=None,
         max_length=2048,
         description="Product URL (url_to_video mode)",
+    )
+    quality_tier: str = Field(
+        default="economy",
+        pattern="^(economy|premium|china)$",
+        description="Quality/cost tier: economy, premium, or china",
     )
 
 

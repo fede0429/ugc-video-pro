@@ -94,6 +94,17 @@ async def run_video_generation(
     # ── Build VideoRequest ─────────────────────────────────────────────────────────────
     from core.orchestrator import VideoOrchestrator, VideoRequest
 
+    # Derive quality tier from model selection
+    _model_to_tier = {
+        "veo_31_fast": "premium", "veo_31_quality": "premium",
+        "seedance_15": "economy", "seedance_2": "economy",
+        "sora_2": "premium", "sora_2_pro": "premium",
+        "runway": "economy", "runway_1080p": "economy",
+        "kling_26": "china", "kling_30": "china",
+        "hailuo": "china",
+    }
+    quality_tier = _model_to_tier.get(task.model, "economy")
+
     request = VideoRequest(
         user_id=user_numeric_id,
         chat_id=0,                       # Not used in web context
@@ -105,6 +116,7 @@ async def run_video_generation(
         text_prompt=task.text_prompt or "",
         image_path=image_path,
         url=task.url,
+        quality_tier=quality_tier,
     )
 
     # ── Callbacks ──────────────────────────────────────────────────────────────────────
