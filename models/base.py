@@ -61,21 +61,21 @@ class GenerationResult:
 
 MODEL_MAX_DURATIONS = {
     # Legacy direct API models
-    "sora_2": 12,
+    "sora_2": 10,        # KIE.AI max 10s
     "sora_2_pro": 25,
-    "seedance_2": 10,
+    "seedance_2": 12,    # KIE.AI valid: 4,5,8,10,12 → max 12s
     "veo_3": 8,
     "veo_3_pro": 8,
     "veo_31_pro": 8,
-    # KIE.AI models
-    "seedance_15": 10,
-    "veo_31_fast": 8,
-    "veo_31_quality": 8,
-    "runway": 10,
-    "runway_1080p": 5,
-    "kling_26": 10,
-    "kling_30": 10,
-    "hailuo": 6,
+    # KIE.AI models — values must match kie_video.py max_seconds
+    "seedance_15": 12,       # valid: 4, 8, 12 → max 12s
+    "veo_31_fast": 8,        # max 8s
+    "veo_31_quality": 8,     # max 8s
+    "runway": 5,             # KIE.AI: runway-duration-5-generate → max 5s
+    "runway_1080p": 5,       # max 5s
+    "kling_26": 10,          # max 10s
+    "kling_30": 15,          # KIE.AI: 3-15s → max 15s
+    "hailuo": 6,             # max 6s
 }
 
 
