@@ -7,12 +7,20 @@ The key advantage of Veo for frame chaining:
     Veo uses the input image as the LITERAL FIRST FRAME of the video.
     This creates seamless visual continuity when frame chaining.
 
-API Flow:
+API Flow (Gemini API via generativelanguage.googleapis.com/v1beta):
     POST /v1beta/models/{model}:predictLongRunning
          → returns {name: "operations/OPERATION_ID"}
     GET  /v1beta/{operation_name}
          → poll until done: true
-         → response.videos[0].uri = GCS URI
+         → response.generateVideoResponse.generatedSamples[0].video.uri
+
+Model names for Gemini API (generativelanguage.googleapis.com):
+    - veo-3.0-generate-preview
+    - veo-3.0-fast-generate-preview
+    - veo-3.1-generate-preview
+    - veo-3.1-fast-generate-preview
+
+Reference: https://ai.google.dev/gemini-api/docs/video
 """
 
 import asyncio
@@ -32,18 +40,18 @@ VEO_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 
 VEO_MODELS = {
     "veo_3": {
-        "api_model": "veo-3.0-generate-001",
+        "api_model": "veo-3.0-generate-preview",
         "max_seconds": 8,
         "supports_audio": True,
     },
     "veo_3_pro": {
-        "api_model": "veo-3.0-generate-001",
+        "api_model": "veo-3.0-generate-preview",
         "max_seconds": 8,
         "supports_audio": True,
         "quality": "high",
     },
     "veo_31_pro": {
-        "api_model": "veo-3.1-generate-001",
+        "api_model": "veo-3.1-generate-preview",
         "max_seconds": 8,
         "supports_audio": True,
         "quality": "high",
@@ -114,7 +122,6 @@ class VeoAdapter(VideoModelAdapter):
         generation_config: dict = {
             "durationSeconds": actual_duration,
             "aspectRatio": veo_aspect,
-            "outputGcsUri": "",
             "numberOfVideos": 1,
         }
 
@@ -207,16 +214,27 @@ class VeoAdapter(VideoModelAdapter):
                 status="processing" if state in ("RUNNING", "ACTIVE") else "pending",
             )
 
+        # Extract video URI from completed operation
+        # Gemini API uses: response.generateVideoResponse.generatedSamples[0].video.uri
+        # Vertex AI uses: response.videos[0].gcsUri
         response = data.get("response", {})
-        videos = response.get("videos", response.get("generatedSamples", []))
         video_uri = None
 
-        if videos:
-            first_video = videos[0]
-            video_uri = (
-                first_video.get("uri") or first_video.get("gcsUri")
-                or first_video.get("video", {}).get("uri")
-            )
+        # Try Gemini API format first
+        gen_response = response.get("generateVideoResponse", {})
+        samples = gen_response.get("generatedSamples", [])
+        if samples:
+            video_uri = samples[0].get("video", {}).get("uri")
+
+        # Fallback to Vertex AI format
+        if not video_uri:
+            videos = response.get("videos", response.get("generatedSamples", []))
+            if videos:
+                first_video = videos[0]
+                video_uri = (
+                    first_video.get("uri") or first_video.get("gcsUri")
+                    or first_video.get("video", {}).get("uri")
+                )
 
         if not video_uri and is_done:
             video_uri = response.get("uri") or response.get("videoUri")
@@ -229,7 +247,7 @@ class VeoAdapter(VideoModelAdapter):
         )
 
     async def download(self, job: GenerationJob) -> str:
-        """Download Veo generated video from GCS URI."""
+        """Download Veo generated video from URI."""
         output_path = str(
             self.output_dir / f"veo_{self.model_key}_{int(time.time())}.mp4"
         )
@@ -250,6 +268,11 @@ class VeoAdapter(VideoModelAdapter):
                 f"/o/{encoded_path}?alt=media"
             )
             video_uri += f"&key={self._api_key}"
+
+        # For Gemini API URIs, append the API key
+        if "generativelanguage.googleapis.com" in video_uri:
+            separator = "&" if "?" in video_uri else "?"
+            video_uri += f"{separator}key={self._api_key}"
 
         logger.info(f"Downloading Veo video from: {video_uri[:80]}...")
 
