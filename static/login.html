@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!--
+  ___  ___  ___  _    _  _
+ | _ \| __|| _ \| |  | \/ |
+ |  _/| _| |   /| |__|> <
+ |_|  |___||_|_\|____|/_/\_\
+ Perplexity Computer — https://www.perplexity.ai/computer
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>登录 — UGC Video Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none" aria-label="UGC Video Pro" style="height:30px;width:auto;">
+        <rect x="2" y="8" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="2" y="17" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="2" y="26" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="6" y="5" width="28" height="30" rx="3" fill="#6366f1"/>
+        <path d="M15 13L15 27L26 20Z" fill="white"/>
+        <rect x="34" y="8" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="34" y="17" width="4" height="5" rx="1" fill="#6366f1"/>
+        <rect x="34" y="26" width="4" height="5" rx="1" fill="#6366f1"/>
+        <text x="46" y="26" font-family="Inter, system-ui, sans-serif" font-size="17" font-weight="700" fill="currentColor" letter-spacing="-0.3">UGC Video Pro</text>
+      </svg>
+    </div>
+
+    <h1 class="auth-title">欢迎回来</h1>
+    <p class="auth-subtitle">登录您的账户以继续</p>
+
+    <!-- Error message -->
+    <div id="loginError" class="auth-error" role="alert"></div>
+
+    <form id="loginForm" class="auth-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">邮筱地址</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          placeholder="your@email.com"
+          autocomplete="email"
+          required
+        >
+        <span class="form-error" id="emailError">请输入有效的邮筱地址</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">密码</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        >
+        <span class="form-error" id="passwordError">请输入密码</span>
+      </div>
+
+      <button type="submit" id="loginBtn" class="btn btn-primary btn-full btn-lg">
+        <span id="loginBtnText">登录</span>
+        <span id="loginSpinner" class="spinner" style="display:none;"></span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      还没有账户？
+      <a href="register.html">使用邀请码注册</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  AuthPage.initLogin();
+</script>
+</body>
+</html>

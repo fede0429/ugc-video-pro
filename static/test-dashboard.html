@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Studio 测试看板</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --panel:#131a2e; --line:#27304a; --text:#e8ecf8; --muted:#98a3c7; --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:linear-gradient(180deg,#09111f,#0f172a); color:var(--text); }
+    .wrap { max-width:1280px; margin:0 auto; padding:24px; }
+    h1 { margin:0 0 8px; font-size:28px; }
+    p { color:var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:16px; margin:20px 0; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.18); }
+    .metric { font-size:34px; font-weight:700; margin-top:8px; }
+    .toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:20px 0; }
+    .toolbar input, .toolbar button { background:#0d1426; color:var(--text); border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+    .toolbar button { cursor:pointer; }
+    .toolbar button:hover { border-color:#3b82f6; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border-bottom:1px solid var(--line); text-align:left; padding:10px; font-size:14px; }
+    th { color:#c9d5ff; font-weight:600; }
+    .pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+    .ok { background:rgba(34,197,94,.15); color:#86efac; }
+    .bad { background:rgba(239,68,68,.15); color:#fca5a5; }
+    .warn { background:rgba(245,158,11,.15); color:#fcd34d; }
+    pre { white-space:pre-wrap; word-break:break-word; background:#0d1426; border:1px solid var(--line); border-radius:12px; padding:12px; color:#dbe5ff; max-height:260px; overflow:auto; }
+    @media (max-width: 900px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width: 640px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Studio 测试看板</h1>
+    <p>统一展示 smoke / regression / E2E matrix 审计结果。默认读取 <code>/static/data/studio_test_dashboard.json</code>，也支持手动导入 JSON。</p>
+
+    <div class="toolbar">
+      <button id="reload-btn">重新加载默认数据</button>
+      <input id="file-input" type="file" accept="application/json" />
+      <button id="load-file-btn">加载本地 JSON</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div>按钮总数</div><div class="metric" id="metric-buttons">-</div></div>
+      <div class="card"><div>Smoke 通过</div><div class="metric" id="metric-smoke">-</div></div>
+      <div class="card"><div>Regression 通过</div><div class="metric" id="metric-regression">-</div></div>
+      <div class="card"><div>失败/跳过</div><div class="metric" id="metric-failed">-</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h2>按钮覆盖矩阵</h2>
+      <table>
+        <thead><tr><th>Button ID</th><th>标签</th><th>页面</th><th>覆盖</th></tr></thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h2>Smoke / Regression 结果</h2>
+      <table>
+        <thead><tr><th>名称</th><th>项目</th><th>类型</th><th>状态</th><th>耗时(s)</th></tr></thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>明细输出</h2>
+      <pre id="raw-output">等待加载...</pre>
+    </div>
+  </div>
+  <script src="/static/js/test-dashboard.js"></script>
+</body>
+</html>

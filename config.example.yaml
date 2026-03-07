@@ -1,0 +1,163 @@
+# ============================================================
+# UGC Video Pro - Configuration Template
+# ============================================================
+# Copy this file to config.yaml and fill in your API keys.
+# Values in ${ } are resolved from environment variables.
+# Syntax: ${VAR} or ${VAR:-default_value}
+#
+# Priority: environment variables > this file
+# ============================================================
+
+
+# ── Web Application ─────────────────────────────────────────────────────
+web:
+  # Host and port for the FastAPI server
+  host: "0.0.0.0"
+  port: 8000
+
+  # CORS origins — restrict to your domain in production
+  # Example: ["https://ugcvideo.pro", "https://www.ugcvideo.pro"]
+  cors_origins: ["*"]
+
+  # Uploaded image storage (persisted via Docker volume)
+  upload_dir: "/app/data/uploads"
+
+  # Generated video storage (persisted via Docker volume)
+  video_dir: "/app/data/videos"
+
+
+# ── Database ───────────────────────────────────────────────────────────
+database:
+  # Async PostgreSQL URL (via asyncpg driver)
+  # Format: postgresql+asyncpg://user:password@host:port/dbname
+  url: "${DATABASE_URL}"
+
+
+# ── Authentication ────────────────────────────────────────────────────
+auth:
+  # Secret key for signing JWT tokens — MUST be set in production
+  jwt_secret: "${JWT_SECRET}"
+
+  # Access token lifetime (short-lived)
+  access_token_expire_minutes: 30
+
+  # Refresh token lifetime (long-lived, stored client-side)
+  refresh_token_expire_days: 7
+
+  # Default admin account created on first startup.
+  # Change these immediately after first login!
+  admin_email: "${ADMIN_EMAIL:-admin@ugcvideo.pro}"
+  admin_password: "${ADMIN_PASSWORD:-changeme123}"
+
+
+# ── AI Model API Keys ─────────────────────────────────────────────────
+models:
+  openai:
+    # https://platform.openai.com/api-keys
+    api_key: "${OPENAI_API_KEY}"
+
+  google:
+    # https://aistudio.google.com/app/apikey
+    api_key: "${GOOGLE_API_KEY}"
+
+  seedance:
+    # https://platform.seedance.ai
+    api_key: "${SEEDANCE_API_KEY}"
+    base_url: "https://api.seedance.ai/v1"
+
+
+# ── Google Gemini (script generation + image analysis) ────────
+gemini:
+  api_key: "${GOOGLE_API_KEY}"
+  # Model for script generation and image analysis
+  # Available: gemini-2.5-flash (recommended), gemini-2.5-pro, gemini-2.0-flash
+  model: "gemini-2.5-flash"
+  # Fallback model if primary fails
+  fallback_model: "gemini-2.0-flash"
+
+
+# ── Google Drive (optional, for cloud storage) ────────────────
+google_drive:
+  # Path to service account JSON or OAuth credentials file
+  # Leave empty to disable Google Drive upload
+  credentials_path: "credentials.json"
+  # Target folder name in Google Drive
+  folder_name: "UGC_Videos"
+  # Whether to make uploaded files publicly accessible
+  make_public: true
+
+
+# ── Video Settings ────────────────────────────────────────────────────
+video:
+  # Local directory for temporary/output video files
+  output_dir: "/tmp/ugc_videos"
+
+  # Default video resolution (portrait 9:16 for UGC)
+  default_size: "720x1280"
+  default_aspect_ratio: "9:16"
+
+  # Transition between stitched segments
+  # Options: crossfade, fade, dissolve, cut
+  transition_type: "crossfade"
+  transition_duration: 0.3   # seconds
+
+  # FFmpeg encoding settings
+  video_codec: "libx264"
+  audio_codec: "aac"
+  crf: 23           # Quality: lower = better (18–28 range)
+  preset: "fast"    # Encoding speed: ultrafast, fast, medium, slow
+
+
+# ── Polling Settings (for async model APIs) ───────────────────
+polling:
+  # How often to check if a job is done (seconds)
+  sora_interval: 60
+  veo_interval: 45
+  seedance_interval: 30
+
+  # Maximum number of polling attempts before giving up
+  max_retries: 30
+
+  # Exponential backoff multiplier
+  backoff_factor: 1.5
+
+
+# ── Frame Chaining Settings ───────────────────────────────────────
+frame_chaining:
+  # Extract frame this many seconds from the end of each clip
+  extract_offset: 0.1   # seconds before end
+
+  # JPEG quality for extracted frames (1-95, higher = better)
+  frame_quality: 95
+
+  # Add continuation hint to prompts for segments after the first
+  add_continuation_prefix: true
+  continuation_prefix: "Seamlessly continuing from the previous frame: "
+
+
+# ── URL Extraction Settings ──────────────────────────────────────
+url_extraction:
+  # Request timeout in seconds
+  timeout: 30
+  # Maximum content length to extract (characters)
+  max_length: 8000
+  # User agent for HTTP requests
+  user_agent: "Mozilla/5.0 (compatible; UGCVideoPro/2.0)"
+
+
+# ── Default Generation Preferences ───────────────────────────────
+defaults:
+  # Default model if not specified
+  model: "veo_3"
+  # Default duration if not specified (seconds)
+  duration: 15
+  # Default output language
+  language: "zh"
+
+
+# ── Logging ────────────────────────────────────────────────────────────
+# Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+log_level: "${LOG_LEVEL:-INFO}"
+
+# Log file path (optional, leave empty for console only)
+log_file: ""

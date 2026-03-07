@@ -1,0 +1,46 @@
+{
+  "project": "all",
+  "mode": "smoke",
+  "results": [
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "/mnt/data/v23_extract/scripts/ugc_smoke_tests_v9.py"
+      ],
+      "returncode": 0,
+      "duration_sec": 6.01,
+      "output": "UGC v14 smoke test passed published_dry_run\n",
+      "kind": "smoke",
+      "project": "ugc",
+      "name": "ugc_smoke_tests_v9.py"
+    },
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "/mnt/data/v23_extract/scripts/animation_smoke_tests_v9.py"
+      ],
+      "returncode": 0,
+      "duration_sec": 8.27,
+      "output": "animation_smoke_tests_v9: ok 62.0 75.0\n",
+      "kind": "smoke",
+      "project": "animation",
+      "name": "animation_smoke_tests_v9.py"
+    },
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "/mnt/data/v23_extract/scripts/animation_api_smoke_v19.py"
+      ],
+      "returncode": 0,
+      "duration_sec": 7.81,
+      "output": "Traceback (most recent call last):\n  File \u001b[35m\"/mnt/data/v23_extract/scripts/animation_api_smoke_v19.py\"\u001b[0m, line \u001b[35m18\u001b[0m, in \u001b[35m<module>\u001b[0m\n    from web.app import create_app\n  File \u001b[35m\"/mnt/data/v23_extract/web/app.py\"\u001b[0m, line \u001b[35m34\u001b[0m, in \u001b[35m<module>\u001b[0m\n    from web.database import init_db\n  File \u001b[35m\"/mnt/data/v23_extract/web/database.py\"\u001b[0m, line \u001b[35m21\u001b[0m, in \u001b[35m<module>\u001b[0m\n    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine\n\u001b[1;35mModuleNotFoundError\u001b[0m: \u001b[35mNo module named 'sqlalchemy'\u001b[0m\n",
+      "kind": "smoke",
+      "project": "animation",
+      "name": "animation_api_smoke_v19.py",
+      "status": "skipped_optional_dependency"
+    }
+  ],
+  "started_at": "2026-03-07 11:15:46",
+  "failed": 0,
+  "status": "passed"
+}

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UGC Video Pro Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body{background:var(--bg-base);}
+  .app-shell{max-width:1400px;margin:0 auto;padding:16px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+  .brand-block{display:flex;align-items:center;gap:14px}
+  .brand-mark{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:grid;place-items:center;font-size:22px;box-shadow:0 14px 34px rgba(99,102,241,.28)}
+  .brand-copy h1{margin:0;font-size:1.4rem}
+  .brand-copy p{margin:4px 0 0;color:var(--text-secondary)}
+  .top-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .nav-chip{padding:10px 14px;border-radius:999px;border:1px solid var(--border-default);background:rgba(255,255,255,.04);color:var(--text-primary);text-decoration:none;font-size:var(--text-sm)}
+  .nav-chip:hover{border-color:var(--accent);background:rgba(99,102,241,.12)}
+  .nav-chip.hidden{display:none}
+  .hidden{display:none !important}
+  .nav-user-pill{padding:10px 14px;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#cff7dc;font-size:var(--text-sm)}
+  .hero-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:18px;margin-bottom:20px}
+  .hero-card,.quick-card,.panel{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;box-shadow:none;}
+  .hero-card{padding:20px}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.14);border:1px solid rgba(99,102,241,.25);border-radius:999px;padding:6px 12px;color:#c7d2fe;font-size:12px;font-weight:700;margin-bottom:14px}
+  .hero-card h2{margin:0 0 10px;font-size:2rem;line-height:1.15}
+  .hero-card p{margin:0;color:var(--text-secondary);max-width:72ch}
+  .hero-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .metric{padding:14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+  .metric strong{display:block;font-size:1.2rem;margin-bottom:4px}
+  .metric span{font-size:var(--text-xs);color:var(--text-secondary)}
+  .quick-card{padding:20px}
+  .quick-list{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+  .quick-item{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+  .quick-item strong{display:block;margin-bottom:6px}
+  .quick-item span{color:var(--text-secondary);font-size:var(--text-sm)}
+  .auth-layout{display:flex;justify-content:center;align-items:center;min-height:70vh;}
+  .auth-card{padding:30px;width:100%;max-width:400px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;}
+  .auth-side{padding:26px}
+  .auth-side ul{margin:16px 0 0;padding-left:18px;color:var(--text-secondary)}
+  .auth-side li{margin:10px 0}
+  .section-tabs{display:flex;gap:10px;margin-bottom:18px}
+  .tab{padding:10px 14px;border:1px solid var(--border-default);border-radius:999px;background:transparent;color:var(--text-secondary);cursor:pointer}
+  .tab.active{background:rgba(99,102,241,.14);color:#eef2ff;border-color:rgba(99,102,241,.4)}
+  .form-stack{display:flex;flex-direction:column;gap:14px}
+  .field{display:flex;flex-direction:column;gap:8px}
+  .field label{font-size:var(--text-sm);font-weight:600}
+  .field input,.field textarea{background:rgba(6,10,22,.9);border:1px solid #293146;border-radius:14px;color:#fff;padding:12px 14px}
+  .field textarea{min-height:90px}
+  .auth-error{display:none;padding:10px 12px;border-radius:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fecaca}
+  .main-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,.7fr);gap:16px}
+  .panel{padding:16px}
+  .panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .panel-title{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.01em}
+  .panel-kicker{font-size:var(--text-xs);padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--text-secondary)}
+  .wizard-panels{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .subpanel{padding:14px;border-radius:12px;background:var(--bg-elevated);border:1px solid var(--border-subtle)}
+  .subpanel h3{margin:0 0 12px;font-size:1rem}
+  .img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(min-width:1200px){.img-grid{grid-template-columns:repeat(4,1fr)}}
+  .img-slot{aspect-ratio:1/1;border:1.5px dashed var(--border-default);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:rgba(6,10,22,.82);color:var(--text-muted);transition:.18s ease}
+  .img-slot:hover,.img-slot.drag-over{border-color:var(--accent);background:rgba(99,102,241,.1)}
+  .img-slot.primary{border-color:rgba(99,102,241,.75)}
+  .img-slot.has-file{border-style:solid;border-color:rgba(34,197,94,.55)}
+  .img-slot .slot-label{position:absolute;top:6px;left:8px;font-size:10px;font-weight:700;color:#c7d2fe;background:rgba(99,102,241,.18);padding:3px 7px;border-radius:999px}
+  .img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+  .img-slot.has-file img{display:block}
+  .img-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .presenter-upload{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .upload-box{border:1.5px dashed var(--border-default);border-radius:18px;padding:18px;background:rgba(6,10,22,.82);text-align:center;cursor:pointer;transition:.18s ease;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center}
+  .upload-box:hover,.upload-box.has-file{border-color:var(--accent)}
+  .chip-group{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{padding:10px 14px;border-radius:999px;border:1px solid var(--border-default);background:rgba(255,255,255,.03);color:var(--text-secondary);cursor:pointer}
+  .chip.active{background:rgba(99,102,241,.16);border-color:rgba(99,102,241,.42);color:#eef2ff}
+  .stack-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+  .helper-text{font-size:var(--text-xs);color:var(--text-secondary)}
+  .right-stack{display:flex;flex-direction:column;gap:18px}
+  .stage-bar{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin-bottom:12px}
+  .stage-bar .stage{padding:10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11px;text-align:center;color:var(--text-secondary)}
+  .stage-bar .stage.active{border-color:rgba(99,102,241,.45);color:#eef2ff;background:rgba(99,102,241,.12)}
+  .stage-bar .stage.done{border-color:rgba(34,197,94,.45);color:#dcfce7;background:rgba(34,197,94,.12)}
+  .timeline-preview,.task-list{display:flex;flex-direction:column;gap:10px}
+  .timeline-item,.task-item{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+  .result-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .empty-state{padding:20px;text-align:center;color:var(--text-secondary);background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.08);border-radius:16px}
+  .auth-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .hint-card{padding:16px;border-radius:16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.18);margin-top:16px}
+  @media(max-width:1100px){
+    .hero-grid,.main-layout,.auth-layout,.wizard-panels{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div id="app" class="app-shell">
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-mark">🎬</div>
+      <div class="brand-copy">
+        <h1>UGC Video Pro Studio</h1>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a class="nav-chip" href="index.html">项目1：UGC</a>
+      <a class="nav-chip" href="animation-studio.html">项目2：动画剧</a>
+      <a class="nav-chip hidden" id="nav-admin-link" href="admin.html">管理后台</a>
+      <span class="nav-user-pill" id="nav-user">未登录</span>
+      <button id="btn-logout" class="nav-chip" type="button">退出登录</button>
+    </div>
+  </header>
+
+  <div id="auth-screen">
+    <div class="auth-layout">
+      <!-- Removed auth-side info panel for conciseness -->
+
+      <section class="auth-card">
+        <div class="section-tabs" id="auth-tabs">
+          <button class="tab active" data-tab="login" type="button">密码登录</button>
+          <button class="tab" data-tab="register" type="button">邀请码注册</button>
+        </div>
+
+        <form id="login-form" class="form-stack" novalidate>
+          <div class="field">
+            <label for="login-email">邮箱</label>
+            <input id="login-email" type="email" placeholder="admin@yourstudio.com" required>
+          </div>
+          <div class="field">
+            <label for="login-pass">密码</label>
+            <input id="login-pass" type="password" placeholder="请输入密码" required>
+          </div>
+          <div id="login-error" class="auth-error"></div>
+          <button class="btn btn-primary btn-lg" type="submit">进入项目控制台</button>
+        </form>
+
+        <form id="register-form" class="form-stack" style="display:none" novalidate>
+          <div class="field">
+            <label for="reg-email">邮箱</label>
+            <input id="reg-email" type="email" placeholder="member@yourstudio.com" required>
+          </div>
+          <div class="field">
+            <label for="reg-pass">密码</label>
+            <input id="reg-pass" type="password" placeholder="至少 8 位" required>
+          </div>
+          <div class="field">
+            <label for="reg-code">邀请码</label>
+            <input id="reg-code" type="text" placeholder="输入管理员分发的邀请码">
+          </div>
+          <div id="reg-error" class="auth-error"></div>
+          <button class="btn btn-primary btn-lg" type="submit">创建子账户</button>
+        </form>
+
+        <div class="hint-card">
+          <strong>部署建议</strong>
+          <div class="helper-text">首次部署时使用环境变量里的 admin 账户登录，然后在管理后台为团队成员创建子账户。这样比公开注册更安全。</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="main-screen" style="display:none">
+    <div class="main-layout">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">🧩 项目1 · UGC 任务编排</div>
+            <div class="helper-text">左侧填信息，右侧看任务状态、时间线和成片结果。</div>
+          </div>
+          <span class="panel-kicker">Project 1 / UGC</span>
+        </div>
+
+        <form id="ugc-form" class="ugc-form">
+          <div class="wizard-panels">
+            <section class="subpanel">
+              <h3>1. 商品素材与卖点</h3>
+              <div class="field">
+                <label>商品图片</label>
+                <div id="product-grid" class="img-grid"></div>
+              </div>
+              <div class="field">
+                <label for="product-url">商品链接（可选）</label>
+                <input id="product-url" type="url" placeholder="https://...">
+              </div>
+              <div class="field">
+                <label for="product-desc">商品描述</label>
+                <textarea id="product-desc" placeholder="这是什么产品、适合谁、你想强调什么使用感。"></textarea>
+              </div>
+              <div class="field">
+                <label for="brand-name">品牌名</label>
+                <input id="brand-name" type="text" placeholder="Brand name">
+              </div>
+              <div class="field">
+                <label for="selling-points">核心卖点</label>
+                <textarea id="selling-points" placeholder="每行一个卖点，例如：轻量、成分温和、见效快。"></textarea>
+              </div>
+              <div class="field">
+                <label for="target-audience">目标人群</label>
+                <textarea id="target-audience" placeholder="例如：25-35 岁女性，追求高效率通勤护肤。"></textarea>
+              </div>
+            </section>
+
+            <section class="subpanel">
+              <h3>2. 主播素材与风格</h3>
+              <div id="presenter-upload-area" class="presenter-upload">
+                <label id="pimg-box" class="upload-box">
+                  <span class="upload-icon">🧍</span>
+                  <strong>主播头像 / 人像图</strong>
+                  <span id="pimg-name" class="helper-text">点击上传图片</span>
+                  <input id="pimg-input" type="file" accept="image/*">
+                </label>
+                <label id="pvid-box" class="upload-box">
+                  <span class="upload-icon">🎥</span>
+                  <strong>主播短视频</strong>
+                  <span id="pvid-name" class="helper-text">点击上传视频</span>
+                  <input id="pvid-input" type="file" accept="video/*">
+                </label>
+              </div>
+
+              <div class="field"><label>人设模板</label><div id="persona-chips" class="chip-group"></div></div>
+              <div class="field"><label>语言 / 配音</label><div id="voice-chips" class="chip-group"></div></div>
+              <div class="field"><label>投放平台</label><div id="platform-chips" class="chip-group"></div></div>
+              <div class="field"><label>Hook 风格</label><div id="hook-chips" class="chip-group"></div></div>
+              <div class="field"><label>语气风格</label><div id="tone-chips" class="chip-group"></div></div>
+              <div class="field"><label>CTA 风格</label><div id="cta-chips" class="chip-group"></div></div>
+
+              <div class="field">
+                <label for="duration">视频时长（秒）</label>
+                <input id="duration" type="number" min="10" max="120" value="30">
+              </div>
+              <div class="field">
+                <label for="quality-tier">质量档位</label>
+                <select id="quality-tier">
+                  <option value="fast">Fast</option>
+                  <option value="balanced" selected>Balanced</option>
+                  <option value="premium">Premium</option>
+                </select>
+              </div>
+            </section>
+          </div>
+
+          <div class="stack-actions">
+            <button type="submit" id="btn-generate" class="btn btn-primary btn-lg">🚀 开始生成带货视频</button>
+            <a class="btn btn-secondary" href="animation-studio.html">切到项目2：动画剧</a>
+            <a id="nav-admin-inline" class="btn btn-ghost hidden" href="admin.html">打开管理后台</a>
+          </div>
+        </form>
+      </section>
+
+      <aside class="right-stack">
+        <section id="active-task-card" class="panel" style="display:none">
+          <div class="panel-header">
+            <div class="panel-title">⚙️ 当前任务进度</div>
+            <span class="panel-kicker">Live</span>
+          </div>
+          <div id="stage-bar" class="stage-bar"></div>
+          <div id="stage-message" class="helper-text" style="margin-bottom:12px"></div>
+          <div id="timeline-preview" class="timeline-preview" style="display:none"></div>
+        </section>
+
+        <section id="result-card" class="panel" style="display:none">
+          <div class="panel-header">
+            <div class="panel-title">✅ 成片结果</div>
+            <span class="panel-kicker">Deliverable</span>
+          </div>
+          <div id="result-video-wrap" style="text-align:center; margin-bottom:12px">
+            <video id="result-video" controls style="max-width:100%;border-radius:18px;max-height:420px"></video>
+          </div>
+          <div id="qa-report" class="helper-text" style="margin-bottom:12px"></div>
+          <div class="result-actions">
+            <a id="btn-download" class="btn btn-primary" download>⬇ 下载视频</a>
+            <a id="btn-drive-link" class="btn btn-ghost" target="_blank" style="display:none">☁ Google Drive</a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📋 历史任务</div>
+            <span class="panel-kicker">Recent Jobs</span>
+          </div>
+          <div id="task-list" class="task-list">
+            <div class="empty-state">暂无任务，先在左侧创建一个新任务。</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+{
+  "total_buttons": 36,
+  "buttons": {
+    "btn-logout": {
+      "label": "退出",
+      "file": "index.html"
+    },
+    "btn-generate": {
+      "label": "🚀 开始生成带货视频",
+      "file": "index.html"
+    },
+    "btn-emotion-arcs": {
+      "label": "角色情绪弧线器",
+      "file": "animation-studio.html"
+    },
+    "btn-punchlines": {
+      "label": "爆点台词生成器",
+      "file": "animation-studio.html"
+    },
+    "btn-scene-twists": {
+      "label": "场景反转检测器",
+      "file": "animation-studio.html"
+    },
+    "btn-highlight-shots": {
+      "label": "爆点镜头编排器",
+      "file": "animation-studio.html"
+    },
+    "btn-suspense-keeper": {
+      "label": "悬念保持器",
+      "file": "animation-studio.html"
+    },
+    "btn-payoff-strength": {
+      "label": "回收强度评分器",
+      "file": "animation-studio.html"
+    },
+    "btn-load-state-machine": {
+      "label": "角色状态机",
+      "file": "animation-studio.html"
+    },
+    "btn-load-scene-assets": {
+      "label": "场景资产库",
+      "file": "animation-studio.html"
+    },
+    "btn-load-scene-flow": {
+      "label": "场景流",
+      "file": "animation-studio.html"
+    },
+    "btn-load-relationship-graph": {
+      "label": "关系图",
+      "file": "animation-studio.html"
+    },
+    "btn-scene-pacing": {
+      "label": "分场节奏控制",
+      "file": "animation-studio.html"
+    },
+    "btn-climax-plan": {
+      "label": "高潮点编排",
+      "file": "animation-studio.html"
+    },
+    "btn-shot-emotion-filters": {
+      "label": "镜头情绪滤镜器",
+      "file": "animation-studio.html"
+    },
+    "btn-foreshadow-plan": {
+      "label": "反转前埋点器",
+      "file": "animation-studio.html"
+    },
+    "btn-payoff-tracker": {
+      "label": "线索回收追踪器",
+      "file": "animation-studio.html"
+    },
+    "check-consistency-btn": {
+      "label": "一致性检查",
+      "file": "animation-studio.html"
+    },
+    "load-templates-btn": {
+      "label": "查看分镜模板库",
+      "file": "animation-studio.html"
+    },
+    "add-character-btn": {
+      "label": "新增角色",
+      "file": "animation-studio.html"
+    },
+    "sync-json-btn": {
+      "label": "同步到 JSON",
+      "file": "animation-studio.html"
+    },
+    "plan-btn": {
+      "label": "先生成规划",
+      "file": "animation-studio.html"
+    },
+    "render-btn": {
+      "label": "直接开始生产",
+      "file": "animation-studio.html"
+    },
+    "batch-render-btn": {
+      "label": "批量生产多集",
+      "file": "animation-studio.html"
+    },
+    "refresh-btn": {
+      "label": "刷新最近任务",
+      "file": "animation-studio.html"
+    },
+    "retry-shot-btn": {
+      "label": "重试单镜头",
+      "file": "animation-studio.html"
+    },
+    "btn-dialogue-style": {
+      "label": "角色对白风格器",
+      "file": "animation-studio.html"
+    },
+    "btn-season-conflict": {
+      "label": "季级剧情冲突树",
+      "file": "animation-studio.html"
+    },
+    "btn-outline": {
+      "label": "剧情大纲编辑器",
+      "file": "animation-studio.html"
+    },
+    "btn-season-memory": {
+      "label": "查看季度级记忆库",
+      "file": "animation-studio.html"
+    },
+    "season-suspense-chain-btn": {
+      "label": "季级悬念链",
+      "file": "animation-studio.html"
+    },
+    "finale-payoff-plan-btn": {
+      "label": "终局回收规划器",
+      "file": "animation-studio.html"
+    },
+    "season-trailer-generator-btn": {
+      "label": "季终预告生成器",
+      "file": "animation-studio.html"
+    },
+    "next-season-hook-planner-btn": {
+      "label": "下季钩子规划器",
+      "file": "animation-studio.html"
+    },
+    "trailer-editor-btn": {
+      "label": "预告片剪辑器",
+      "file": "animation-studio.html"
+    },
+    "next-episode-cold-open-btn": {
+      "label": "下季首集冷开场",
+      "file": "animation-studio.html"
+    }
+  },
+  "referenced_tokens": [
+    "asset-box",
+    "auth-screen",
+    "batch-goals",
+    "batch-output",
+    "batch-render-btn",
+    "brand-name",
+    "btn-climax-plan",
+    "btn-dialogue-style",
+    "btn-emotion-arcs",
+    "btn-foreshadow-plan",
+    "btn-generate",
+    "btn-highlight-shots",
+    "btn-load-relationship-graph",
+    "btn-load-scene-assets",
+    "btn-load-scene-flow",
+    "btn-load-state-machine",
+    "btn-outline",
+    "btn-payoff-strength",
+    "btn-payoff-tracker",
+    "btn-punchlines",
+    "btn-scene-pacing",
+    "btn-scene-twists",
+    "btn-season-conflict",
+    "btn-season-memory",
+    "btn-shot-emotion-filters",
+    "btn-suspense-keeper",
+    "characters-json",
+    "check-consistency-btn",
+    "climax-preview",
+    "cold-open-preview",
+    "consistency-output",
+    "consistency-preview",
+    "core-premise",
+    "dialogue-style-preview",
+    "dialogue-styles-preview",
+    "emotion-arcs-preview",
+    "episode-goal",
+    "finale-payoff-plan-btn",
+    "finale-payoff-plan-preview",
+    "finale-payoff-preview",
+    "foreshadow-preview",
+    "form-status",
+    "goal",
+    "highlight-shots-preview",
+    "load-templates-btn",
+    "login-email",
+    "login-form",
+    "login-pass",
+    "main-screen",
+    "next-episode-cold-open-btn",
+    "next-episode-cold-open-preview",
+    "next-season-hook-planner-btn",
+    "next-season-hook-planner-preview",
+    "next-season-hook-preview",
+    "outline-preview",
+    "pacing-preview",
+    "payoff-strength-preview",
+    "payoff-tracker-preview",
+    "plan-btn",
+    "plan-output",
+    "plan-preview",
+    "platform",
+    "product-desc",
+    "product-grid",
+    "productDescription",
+    "productName",
+    "punchline-preview",
+    "refresh-btn",
+    "relationship-preview",
+    "render-btn",
+    "render-output",
+    "retry-shot-btn",
+    "retry-shot-id",
+    "retry-shot-output",
+    "retry-task-id",
+    "scene-flow-output",
+    "scene-twists-preview",
+    "season-conflict-preview",
+    "season-memory-preview",
+    "season-suspense-chain-btn",
+    "season-suspense-chain-preview",
+    "season-trailer-generator-btn",
+    "season-trailer-generator-preview",
+    "season-trailer-preview",
+    "selling-points",
+    "shot-emotion-filters-preview",
+    "stage-message",
+    "state-box",
+    "suspense-keeper-preview",
+    "target-audience",
+    "targetAudience",
+    "task-id",
+    "task-links",
+    "task-list",
+    "task-status",
+    "tasks-output",
+    "template-preview",
+    "templates-output",
+    "timeline-preview",
+    "title",
+    "trailer-editor-btn",
+    "trailer-editor-preview"
+  ]
+}
