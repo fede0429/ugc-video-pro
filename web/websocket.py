@@ -178,3 +178,9 @@ async def ws_progress(
         logger.warning(f"WS unexpected error (task={task_id}): {exc}")
     finally:
         manager.disconnect(task_id, websocket)
+
+
+# ── Convenience function (used by tasks.py) ────────────────────────────────────────────
+async def broadcast_progress(task_id: str, data: dict) -> None:
+    """Convenience wrapper so tasks.py can do: from web.websocket import broadcast_progress"""
+    await manager.broadcast(task_id, data)
