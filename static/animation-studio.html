@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Animation Studio — 项目2</title>
+<link href="css/style.css" rel="stylesheet"/>
+<style>
+  body{background:linear-gradient(180deg,#08111d 0%,#0d0d0f 100%)}
+  .studio-shell{max-width:1480px;margin:0 auto;padding:24px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .brand-block{display:flex;align-items:center;gap:14px}
+  .brand-mark{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#10b981,#0ea5e9);display:grid;place-items:center;font-size:22px;box-shadow:0 16px 34px rgba(16,185,129,.22)}
+  .brand-copy h1{margin:0;font-size:1.35rem}
+  .brand-copy p{margin:4px 0 0;color:var(--text-secondary)}
+  .top-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .nav-chip{padding:10px 14px;border-radius:999px;border:1px solid var(--border-default);background:rgba(255,255,255,.04);color:var(--text-primary);text-decoration:none;font-size:var(--text-sm)}
+  .nav-chip:hover{border-color:var(--accent);background:rgba(99,102,241,.12)}
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:18px}
+  .hero-card,.panel{background:rgba(17,17,21,.78);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .hero-card{padding:22px}
+  .hero-card h2{margin:0 0 8px;font-size:1.8rem}
+  .hero-card p{margin:0;color:var(--text-secondary)}
+  .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .hero-pill{padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:var(--text-sm)}
+  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+  .panel{padding:16px;margin-bottom:16px}
+  .row{margin-bottom:12px}
+  label{display:block;margin-bottom:6px;font-weight:600}
+  input,textarea,select{width:100%;padding:10px;border-radius:12px;border:1px solid #37415d;background:#0d1320;color:#fff}
+  textarea{min-height:96px}
+  .btns{display:flex;gap:12px;flex-wrap:wrap}
+  button{padding:10px 16px;border-radius:12px;border:0;cursor:pointer;background:#4f7cff;color:#fff}
+  button.secondary{background:#23304f}
+  pre{white-space:pre-wrap;word-break:break-word;max-height:72vh;overflow:auto;background:#0d1320;padding:12px;border-radius:12px}
+  .muted{color:#97a3b6;font-size:13px}
+  .shot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .characters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .panel h3{margin:0 0 12px}
+  .helper-callout{padding:14px;border-radius:16px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.18)}
+  @media(max-width:1050px){.hero,.grid,.shot-grid,.characters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="studio-shell">
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-mark">🎞️</div>
+      <div class="brand-copy">
+        <h1>Animation Studio</h1>
+        <p>项目 2 · 动画剧创作与镜头规划工作台</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a class="nav-chip" href="index.html">← 返回项目1：UGC</a>
+      <a class="nav-chip" href="animation-studio.html">项目2首页</a>
+      <a class="nav-chip" href="admin.html">管理后台</a>
+      <a class="nav-chip" href="test-dashboard.html">测试看板</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-card">
+      <h2>从世界观、角色、分镜到悬念链，一站式管理动画剧生产。</h2>
+      <p>这个页面专注项目 2。顶部已经补了明显的返回入口，你可以随时退回项目 1。下面所有规划按钮都按模块分区，避免信息堆叠。</p>
+      <div class="hero-pills">
+        <span class="hero-pill">角色一致性</span>
+        <span class="hero-pill">场景节奏</span>
+        <span class="hero-pill">悬念 / 回收</span>
+        <span class="hero-pill">季终预告</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="helper-callout">
+        <strong>切换提示</strong>
+        <div class="muted" style="margin-top:8px">项目 1 用于带货 UGC 生产；项目 2 用于动画剧与剧情控制。两个项目共用同一套账号与管理后台。</div>
+      </div>
+      <div class="helper-callout" style="margin-top:12px;background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.18)">
+        <strong>当前建议</strong>
+        <div class="muted" style="margin-top:8px">先生成规划，再逐项检查一致性、反转、悬念和高潮，确认后再开始渲染或批量生产。</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>基础设定</h3>
+        <div class="row"><label>标题</label><input id="title" placeholder="例如：豪门婚约崩盘后，她把编剧捡回家"></div>
+        <div class="row"><label>核心 premise</label><textarea id="premise" placeholder="一句话概括世界观和冲突。"></textarea></div>
+        <div class="row"><label>本集目标</label><textarea id="episode-goal" placeholder="例如：女主公开对峙后关系失控"></textarea></div>
+        <div class="row"><label>批量目标（每行一个）</label><textarea id="batch-goals" placeholder="第1集目标&#10;第2集目标"></textarea></div>
+        <div class="shot-grid">
+          <div class="row"><label>视觉风格</label><input id="visual-style" value="高对比都市豪门短剧 / 轻电影感"/></div>
+          <div class="row"><label>类型</label><input id="genre" value="都市情感 / 短剧"/></div>
+        </div>
+        <div class="shot-grid">
+          <div class="row"><label>平台</label><select id="platform"><option value="douyin">抖音</option><option value="tiktok">TikTok</option><option value="xiaohongshu">小红书</option><option value="youtube">YouTube</option></select></div>
+          <div class="row"><label>语言</label><select id="language"><option value="zh">中文</option><option value="en">English</option><option value="it">Italiano</option></select></div>
+        </div>
+        <div class="shot-grid">
+          <div class="row"><label>场景数量</label><input id="scene-count" type="number" value="6"/></div>
+          <div class="row"><label>画幅</label><select id="aspect-ratio"><option value="9:16">9:16</option><option value="16:9">16:9</option><option value="1:1">1:1</option></select></div>
+        </div>
+        <div class="shot-grid">
+          <div class="row"><label>模型</label><input id="model-variant" value="seedance_2"/></div>
+          <div class="row"><label>降级模型</label><input id="fallback-model" value="seedance_15"/></div>
+        </div>
+        <div class="shot-grid">
+          <div class="row"><label>批次父任务</label><input id="batch-parent-id" placeholder="可留空"/></div>
+          <div class="row"><label>单镜头重试上限</label><input id="shot-retry-limit" type="number" value="2"/></div>
+        </div>
+        <div class="shot-grid">
+          <div class="row"><label>TTS</label><select id="enable-tts"><option value="true">开启</option><option value="false">关闭</option></select></div>
+          <div class="row"><label>Dry Run</label><select id="dry-run"><option value="true">是</option><option value="false">否</option></select></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>角色编辑器</h3>
+        <div class="muted" style="margin-bottom:8px">支持多个角色、参考图、口头禅和人格设定。上传的参考图可以直接用于后续一致性与镜头规划。</div>
+        <div id="character-editor" class="characters"></div>
+        <div class="btns" style="margin-top:12px">
+          <button class="secondary" id="add-character-btn" type="button">添加角色</button>
+          <button class="secondary" id="sync-json-btn" type="button">同步到 JSON</button>
+        </div>
+        <div class="row" style="margin-top:12px"><label>角色 JSON</label><textarea id="characters-json"></textarea></div>
+      </div>
+
+      <div class="panel">
+        <h3>核心动作</h3>
+        <div class="btns">
+          <button id="plan-btn" type="button">先生成规划</button>
+          <button id="render-btn" type="button">直接开始生产</button>
+          <button class="secondary" id="batch-render-btn" type="button">批量生产多集</button>
+          <button class="secondary" id="refresh-btn" type="button">刷新最近任务</button>
+        </div>
+        <div class="muted" id="form-status" style="margin-top:12px">待命中</div>
+        <div class="shot-grid" style="margin-top:12px">
+          <div><label>当前 Task ID</label><input id="task-id" readonly placeholder="生成任务后自动显示"></div>
+          <div><label>当前 Goal</label><input id="goal" readonly placeholder="规划后自动显示"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>一致性 / 模板 / 基础规划</h3>
+        <div class="btns">
+          <button class="secondary" id="check-consistency-btn" type="button">一致性检查</button>
+          <button class="secondary" id="load-templates-btn" type="button">查看分镜模板库</button>
+          <button class="secondary" id="btn-load-state-machine" type="button">角色状态机</button>
+          <button class="secondary" id="btn-load-scene-assets" type="button">场景资产库</button>
+          <button class="secondary" id="btn-load-scene-flow" type="button">场景流</button>
+          <button class="secondary" id="btn-load-relationship-graph" type="button">关系图</button>
+        </div>
+        <div class="shot-grid" style="margin-top:12px">
+          <div><label>一致性状态</label><pre id="consistency-status">{}</pre></div>
+          <div><label>模板库预览</label><pre id="template-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>角色状态机</label><pre id="state-box">{}</pre></div>
+          <div><label>场景资产库</label><pre id="asset-box">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>场景流</label><pre id="scene-flow-output">{}</pre></div>
+          <div><label>关系图</label><pre id="relationship-preview">{}</pre></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>情绪 / 反转 / 悬念 / 回收</h3>
+        <div class="btns">
+          <button class="secondary" id="btn-emotion-arcs" type="button">角色情绪弧线器</button>
+          <button class="secondary" id="btn-punchlines" type="button">爆点台词生成器</button>
+          <button class="secondary" id="btn-scene-twists" type="button">场景反转检测器</button>
+          <button class="secondary" id="btn-highlight-shots" type="button">爆点镜头编排器</button>
+          <button class="secondary" id="btn-shot-emotion-filters" type="button">镜头情绪滤镜器</button>
+          <button class="secondary" id="btn-foreshadow-plan" type="button">反转前埋点器</button>
+          <button class="secondary" id="btn-payoff-tracker" type="button">线索回收追踪器</button>
+          <button class="secondary" id="btn-suspense-keeper" type="button">悬念保持器</button>
+          <button class="secondary" id="btn-payoff-strength" type="button">回收强度评分器</button>
+        </div>
+        <div class="shot-grid" style="margin-top:12px">
+          <div><label>情绪弧线</label><pre id="emotion-arcs-preview">{}</pre></div>
+          <div><label>爆点台词</label><pre id="punchline-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>镜头情绪滤镜</label><pre id="shot-emotion-filters-preview">{}</pre></div>
+          <div><label>埋点计划</label><pre id="foreshadow-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>回收追踪器</label><pre id="payoff-tracker-preview">{}</pre></div>
+          <div><label>悬念保持器</label><pre id="suspense-keeper-preview">{}</pre></div>
+        </div>
+
+        <div class="shot-grid">
+          <div><label>场景反转检测器</label><pre id="scene-twists-preview">{}</pre></div>
+          <div><label>爆点镜头编排器</label><pre id="highlight-shots-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>回收强度评分</label><pre id="payoff-strength-preview">{}</pre></div>
+          <div><label>批次资产输出</label><pre id="batch-assets-output">{}</pre></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>对白风格 / 季级剧情 / 节奏高潮</h3>
+        <div class="btns">
+          <button class="secondary" id="btn-dialogue-style" type="button">角色对白风格器</button>
+          <button class="secondary" id="btn-season-conflict" type="button">季级剧情冲突树</button>
+          <button class="secondary" id="btn-outline" type="button">剧情大纲编辑器</button>
+          <button class="secondary" id="btn-season-memory" type="button">查看季度级记忆库</button>
+          <button class="secondary" id="btn-scene-pacing" type="button">分场节奏控制</button>
+          <button class="secondary" id="btn-climax-plan" type="button">高潮点编排</button>
+          <button class="secondary" id="season-suspense-chain-btn" type="button">季级悬念链</button>
+          <button class="secondary" id="finale-payoff-plan-btn" type="button">终局回收规划器</button>
+        </div>
+        <div class="shot-grid" style="margin-top:12px">
+          <div><label>对白风格器</label><pre id="dialogue-style-preview">{}</pre></div>
+          <div><label>季级冲突树</label><pre id="season-conflict-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>剧情大纲编辑器</label><pre id="outline-preview">{}</pre></div>
+          <div><label>季度级记忆库</label><pre id="season-memory-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>分场节奏控制</label><pre id="pacing-preview">{}</pre></div>
+          <div><label>高潮点编排</label><pre id="climax-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>季级悬念链</label><pre id="season-suspense-chain-preview">{}</pre></div>
+          <div><label>终局回收规划器</label><pre id="finale-payoff-plan-preview">{}</pre></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>预告 / 下一季钩子</h3>
+        <div class="btns">
+          <button class="secondary" id="season-trailer-generator-btn" type="button">季终预告生成器</button>
+          <button class="secondary" id="next-season-hook-planner-btn" type="button">下季钩子规划器</button>
+          <button class="secondary" id="trailer-editor-btn" type="button">预告片剪辑器</button>
+          <button class="secondary" id="next-episode-cold-open-btn" type="button">下季首集冷开场</button>
+        </div>
+        <div class="shot-grid" style="margin-top:12px">
+          <div><label>季终预告生成器</label><pre id="season-trailer-generator-preview">{}</pre></div>
+          <div><label>下季钩子规划器</label><pre id="next-season-hook-planner-preview">{}</pre></div>
+        </div>
+        <div class="shot-grid">
+          <div><label>预告片剪辑器</label><pre id="trailer-editor-preview">{}</pre></div>
+          <div><label>下季首集冷开场</label><pre id="next-episode-cold-open-preview">{}</pre></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>输出 / 规划 JSON</h3>
+        <pre id="output">点击“先生成规划”或“直接开始生产”。</pre>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h3>任务列表</h3>
+        <div id="task-list" class="muted">暂无任务</div>
+      </div>
+      <div class="panel">
+        <h3>任务状态</h3>
+        <pre id="task-status">{}</pre>
+        <div id="task-links" class="btns" style="margin-top:12px"></div>
+      </div>
+      <div class="panel">
+        <h3>单镜头重试</h3>
+        <div class="row"><label>任务 ID</label><input id="retry-task-id" placeholder="例如 anim-xxx"></div>
+        <div class="row"><label>镜头 ID</label><input id="retry-shot-id" placeholder="例如 S1-A"></div>
+        <div class="btns"><button id="retry-shot-btn" type="button">重试单镜头</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/animation-dashboard.js"></script>
+</body>
+</html>

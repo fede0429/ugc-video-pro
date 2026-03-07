@@ -1,0 +1,18 @@
+{
+  "name": "ugc-video-pro-studio-tests",
+  "private": true,
+  "scripts": {
+    "test:studio:smoke": "python scripts/studio_test_hub.py --mode smoke --project all",
+    "test:studio:e2e:mock": "python scripts/studio_test_hub.py --mode e2e --project all --e2e-mock 1",
+    "test:studio:e2e:real": "python scripts/studio_test_hub.py --mode e2e --project all --e2e-mock 0",
+    "test:studio:all": "python scripts/studio_test_hub.py --mode all --project all --e2e-mock 1",
+    "test:studio:e2e:matrix:mock": "ANIMATION_E2E_MOCK=1 npx playwright test tests/e2e/studio-e2e-matrix.spec.js",
+    "test:studio:e2e:matrix:real": "ANIMATION_E2E_MOCK=0 ANIMATION_E2E_BASE_URL=http://127.0.0.1:8000 npx playwright test tests/e2e/studio-e2e-matrix.spec.js",
+    "test:studio:regression": "python scripts/run_studio_regression.py",
+    "test:studio:regression:e2e": "python scripts/run_studio_regression.py --with-e2e --e2e-mock 1",
+    "test:studio:dashboard": "python scripts/generate_test_dashboard_data.py"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

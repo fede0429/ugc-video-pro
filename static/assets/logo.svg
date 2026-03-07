@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none" aria-label="UGC Video Pro">
+  <!-- Film strip left notch -->
+  <rect x="2" y="8" width="4" height="5" rx="1" fill="#6366f1"/>
+  <rect x="2" y="17" width="4" height="5" rx="1" fill="#6366f1"/>
+  <rect x="2" y="26" width="4" height="5" rx="1" fill="#6366f1"/>
+  <!-- Main frame -->
+  <rect x="6" y="5" width="28" height="30" rx="3" fill="#6366f1"/>
+  <!-- Play triangle -->
+  <path d="M15 13L15 27L26 20Z" fill="white"/>
+  <!-- Right notch -->
+  <rect x="34" y="8" width="4" height="5" rx="1" fill="#6366f1"/>
+  <rect x="34" y="17" width="4" height="5" rx="1" fill="#6366f1"/>
+  <rect x="34" y="26" width="4" height="5" rx="1" fill="#6366f1"/>
+  <!-- Text: UGC Video Pro -->
+  <text x="46" y="26" font-family="Inter, system-ui, sans-serif" font-size="17" font-weight="700" fill="currentColor" letter-spacing="-0.3">UGC Video Pro</text>
+</svg>

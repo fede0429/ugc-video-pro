@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 — UGC Video Pro Studio</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body{background:linear-gradient(180deg,#0b1020 0%,#0d0d0f 100%)}
+  .admin-shell{max-width:1380px;margin:0 auto;padding:24px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .top-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .nav-chip{padding:10px 14px;border-radius:999px;border:1px solid var(--border-default);background:rgba(255,255,255,.04);color:var(--text-primary);text-decoration:none}
+  .page-grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+  .panel{background:rgba(17,17,21,.78);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .panel h2,.panel h3{margin-top:0}
+  .field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+  .field label{font-weight:600}
+  .field input,.field select{padding:12px;border-radius:14px;border:1px solid #293146;background:#0d1320;color:#fff}
+  .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .helper{font-size:13px;color:#9aa4b7}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:12px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;vertical-align:top}
+  th{color:#c7d2fe;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+  .tag{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid rgba(255,255,255,.09)}
+  .tag.admin{background:rgba(99,102,241,.15);color:#e0e7ff;border-color:rgba(99,102,241,.3)}
+  .tag.user{background:rgba(16,185,129,.14);color:#d1fae5;border-color:rgba(16,185,129,.28)}
+  .tag.off{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.28)}
+  .mini-btn{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;cursor:pointer}
+  .mini-btn.danger{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.12)}
+  .list-box{display:flex;flex-direction:column;gap:10px}
+  .code-card{padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+  .empty{padding:18px;text-align:center;color:#9aa4b7;border:1px dashed rgba(255,255,255,.08);border-radius:16px}
+  .status-banner{padding:14px 16px;border-radius:16px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);margin-bottom:16px}
+  .toast-host{position:fixed;right:18px;top:18px;display:flex;flex-direction:column;gap:10px;z-index:1000}
+  .toast{padding:12px 14px;border-radius:14px;background:#111827;border:1px solid rgba(255,255,255,.08)}
+  .modal{position:fixed;inset:0;background:rgba(4,8,18,.7);display:none;align-items:center;justify-content:center;padding:20px}
+  .modal.open{display:flex}
+  .modal-card{width:min(520px,100%);background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px}
+  @media(max-width:1024px){.page-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <header class="topbar">
+    <div>
+      <h1 style="margin:0">管理后台</h1>
+      <div class="helper">admin 为最高管理员。可以创建子账户、停用其他账号、生成邀请码。</div>
+    </div>
+    <div class="top-actions">
+      <a class="nav-chip" href="/admin-permissions.html">子账户权限页</a>
+      <a class="nav-chip" href="index.html">项目1：UGC</a>
+      <a class="nav-chip" href="animation-studio.html">项目2：动画剧</a>
+      <a class="nav-chip" href="test-dashboard.html">测试看板</a>
+      <button class="nav-chip" id="adminLogoutBtn" type="button">退出登录</button>
+    </div>
+  </header>
+
+  <div class="status-banner" id="adminStatus">正在验证管理员身份…</div>
+
+  
+<div id="admin-summary-cards" class="btns" style="margin-bottom:16px">
+  <div class="panel" style="padding:14px;min-width:180px"><div class="helper">用户总数</div><strong id="summary-users">0</strong></div>
+  <div class="panel" style="padding:14px;min-width:180px"><div class="helper">启用中</div><strong id="summary-active">0</strong></div>
+  <div class="panel" style="padding:14px;min-width:180px"><div class="helper">管理员</div><strong id="summary-admins">0</strong></div>
+  <div class="panel" style="padding:14px;min-width:180px"><div class="helper">邀请码</div><strong id="summary-invites">0</strong></div>
+</div>
+<div class="page-grid">
+
+    <div class="panel">
+      <div class="field"><label for="userSearch">搜索用户</label><input id="userSearch" type="text" placeholder="邮箱 / 名称"></div>
+      <h3>创建子账户</h3>
+      <div class="field">
+        <label for="admin-create-email">邮箱</label>
+        <input id="admin-create-email" type="email" placeholder="member@yourstudio.com">
+      </div>
+      <div class="field">
+        <label for="admin-create-name">显示名称</label>
+        <input id="admin-create-name" type="text" placeholder="成员名称">
+      </div>
+      <div class="field">
+        <label for="admin-create-password">初始密码</label>
+        <input id="admin-create-password" type="password" placeholder="至少 8 位">
+      </div>
+      <div class="field">
+        <label for="admin-create-role">角色</label>
+        <select id="admin-create-role">
+          <option value="user" selected>子账户（user）</option>
+          <option value="admin">管理员（admin）</option>
+        </select>
+      </div>
+      <div class="btns">
+        <button class="btn btn-primary" id="createUserBtn" type="button">创建账户</button>
+      </div>
+      <div class="helper" style="margin-top:10px">建议默认只创建 user 子账户。admin 只能由最高管理员谨慎分配。</div>
+
+      <hr style="border-color:rgba(255,255,255,.06);margin:22px 0">
+
+      <h3>邀请码</h3>
+      <div class="field">
+        <label for="inviteCount">生成数量</label>
+        <input id="inviteCount" type="number" min="1" max="50" value="5">
+      </div>
+      <div class="btns">
+        <button class="btn btn-secondary" id="generateCodesBtn" type="button">生成邀请码</button>
+      </div>
+      <div id="inviteCodesLoading" class="helper" style="margin-top:10px">加载邀请码中…</div>
+      <div id="inviteCodesList" class="list-box" style="margin-top:12px"></div>
+    </div>
+
+    <div class="panel">
+      <h2>账户管理</h2>
+      <div class="helper" style="margin-bottom:12px">admin 可以停用其他子账户。停用后该账号无法继续登录。</div>
+      <div id="usersLoading" class="helper">加载用户列表中…</div>
+      <table id="usersTable" style="display:none">
+        <thead>
+          <tr>
+            <th>用户</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="editUserModal" class="modal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
+      <h3 style="margin:0">编辑账户</h3>
+      <button class="mini-btn" id="editUserModalClose" type="button">关闭</button>
+    </div>
+    <input id="editUserId" type="hidden">
+    <div class="field">
+      <label for="editUserEmail">邮箱</label>
+      <input id="editUserEmail" type="text" readonly>
+    </div>
+    <div class="field">
+      <label for="editUserRole">角色</label>
+      <select id="editUserRole">
+        <option value="user">user</option>
+        <option value="admin">admin</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editUserActive">状态</label>
+      <select id="editUserActive">
+        <option value="true">启用</option>
+        <option value="false">停用</option>
+      </select>
+    </div>
+    <div class="btns">
+      <button class="btn btn-primary" id="editUserSave" type="button">保存</button>
+      <button class="btn btn-ghost" id="editUserCancel" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-host" id="adminToastHost"></div>
+
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+<script>
+(async function(){
+  function redirectLogin(){ window.location.href = 'login.html'; }
+  if (!window.API || !API.isAuthenticated()) { redirectLogin(); return; }
+  try {
+    const me = await API.getMe();
+    const status = document.getElementById('adminStatus');
+    if (me.role !== 'admin') {
+      status.textContent = '当前账户不是管理员，无法访问此页面。';
+      setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+      return;
+    }
+    status.innerHTML = `当前管理员：<strong>${me.display_name || me.email}</strong>（${me.email}）`;
+    Admin.loadUsers();
+    Admin.loadInviteCodes();
+  } catch (err) {
+    redirectLogin();
+  }
+  document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
+    API.logout();
+    window.location.href = 'login.html';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "consent_confirmed": true,
+  "subject_type": "real_person",
+  "subject_name": "张三",
+  "rights_owner": "张三本人",
+  "authorization_basis": "signed_release",
+  "contract_id": "CN-2026-00018",
+  "ticket_id": "OPS-2026-0312",
+  "usage_scope": {
+    "platforms": [
+      "douyin",
+      "tiktok",
+      "xiaohongshu"
+    ],
+    "languages": [
+      "zh",
+      "it",
+      "en"
+    ],
+    "purposes": [
+      "ugc_ads",
+      "product_demo"
+    ],
+    "allow_lipsync": true,
+    "allow_face_reenactment": true,
+    "allow_voice_clone": false
+  },
+  "valid_from": "2026-01-01",
+  "valid_until": "2027-03-01",
+  "evidence_files": [
+    {
+      "name": "consent_form.pdf",
+      "sha256": "填写授权附件哈希"
+    }
+  ],
+  "bound_assets": {
+    "presenter_image_sha256": "",
+    "presenter_video_sha256": ""
+  },
+  "operator": {
+    "user_id": "u_1024",
+    "email": "ops@yourstudio.com"
+  },
+  "notes": "仅用于品牌自营投流，不得转授权"
+}

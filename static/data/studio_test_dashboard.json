@@ -1,0 +1,351 @@
+{
+  "version": "v24",
+  "summary": {
+    "button_count": 36,
+    "smoke": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "regression": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 1
+    }
+  },
+  "smoke_results": [
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "/mnt/data/v23_extract/scripts/ugc_smoke_tests_v9.py"
+      ],
+      "returncode": 0,
+      "duration_sec": 6.01,
+      "output": "UGC v14 smoke test passed published_dry_run\n",
+      "kind": "smoke",
+      "project": "ugc",
+      "name": "ugc_smoke_tests_v9.py"
+    },
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "/mnt/data/v23_extract/scripts/animation_smoke_tests_v9.py"
+      ],
+      "returncode": 0,
+      "duration_sec": 8.27,
+      "output": "animation_smoke_tests_v9: ok 62.0 75.0\n",
+      "kind": "smoke",
+      "project": "animation",
+      "name": "animation_smoke_tests_v9.py"
+    },
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "/mnt/data/v23_extract/scripts/animation_api_smoke_v19.py"
+      ],
+      "returncode": 0,
+      "duration_sec": 7.81,
+      "output": "Traceback (most recent call last):\n  File \u001b[35m\"/mnt/data/v23_extract/scripts/animation_api_smoke_v19.py\"\u001b[0m, line \u001b[35m18\u001b[0m, in \u001b[35m<module>\u001b[0m\n    from web.app import create_app\n  File \u001b[35m\"/mnt/data/v23_extract/web/app.py\"\u001b[0m, line \u001b[35m34\u001b[0m, in \u001b[35m<module>\u001b[0m\n    from web.database import init_db\n  File \u001b[35m\"/mnt/data/v23_extract/web/database.py\"\u001b[0m, line \u001b[35m21\u001b[0m, in \u001b[35m<module>\u001b[0m\n    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine\n\u001b[1;35mModuleNotFoundError\u001b[0m: \u001b[35mNo module named 'sqlalchemy'\u001b[0m\n",
+      "kind": "smoke",
+      "project": "animation",
+      "name": "animation_api_smoke_v19.py",
+      "status": "skipped_optional_dependency"
+    }
+  ],
+  "regression_results": [
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "core",
+        "projects",
+        "services",
+        "web",
+        "scripts"
+      ],
+      "cwd": "/mnt/data/v23_extract",
+      "returncode": 0,
+      "duration_sec": 6.32,
+      "output": ""
+    },
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "scripts/studio_e2e_audit.py"
+      ],
+      "cwd": "/mnt/data/v23_extract",
+      "returncode": 0,
+      "duration_sec": 6.16,
+      "output": "buttons=36 audit=/mnt/data/v23_extract/V23_E2E_BUTTON_AUDIT.json\n"
+    },
+    {
+      "cmd": [
+        "/opt/pyvenv/bin/python",
+        "scripts/studio_test_hub.py",
+        "--mode",
+        "smoke",
+        "--project",
+        "all"
+      ],
+      "cwd": "/mnt/data/v23_extract",
+      "returncode": 0,
+      "duration_sec": 28.31,
+      "output": "{\n  \"project\": \"all\",\n  \"mode\": \"smoke\",\n  \"results\": [\n    {\n      \"cmd\": [\n        \"/opt/pyvenv/bin/python\",\n        \"/mnt/data/v23_extract/scripts/ugc_smoke_tests_v9.py\"\n      ],\n      \"returncode\": 0,\n      \"duration_sec\": 6.01,\n      \"output\": \"UGC v14 smoke test passed published_dry_run\\n\",\n      \"kind\": \"smoke\",\n      \"project\": \"ugc\",\n      \"name\": \"ugc_smoke_tests_v9.py\"\n    },\n    {\n      \"cmd\": [\n        \"/opt/pyvenv/bin/python\",\n        \"/mnt/data/v23_extract/scripts/animation_smoke_tests_v9.py\"\n      ],\n      \"returncode\": 0,\n      \"duration_sec\": 8.27,\n      \"output\": \"animation_smoke_tests_v9: ok 62.0 75.0\\n\",\n      \"kind\": \"smoke\",\n      \"project\": \"animation\",\n      \"name\": \"animation_smoke_tests_v9.py\"\n    },\n    {\n      \"cmd\": [\n        \"/opt/pyvenv/bin/python\",\n        \"/mnt/data/v23_extract/scripts/animation_api_smoke_v19.py\"\n      ],\n      \"returncode\": 0,\n      \"duration_sec\": 7.81,\n      \"output\": \"Traceback (most recent call last):\\n  File \\u001b[35m\\\"/mnt/data/v23_extract/scripts/animation_api_smoke_v19.py\\\"\\u001b[0m, line \\u001b[35m18\\u001b[0m, in \\u001b[35m<module>\\u001b[0m\\n    from web.app import create_app\\n  File \\u001b[35m\\\"/mnt/data/v23_extract/web/app.py\\\"\\u001b[0m, line \\u001b[35m34\\u001b[0m, in \\u001b[35m<module>\\u001b[0m\\n    from web.database import init_db\\n  File \\u001b[35m\\\"/mnt/data/v23_extract/web/database.py\\\"\\u001b[0m, line \\u001b[35m21\\u001b[0m, in \\u001b[35m<module>\\u001b[0m\\n    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine\\n\\u001b[1;35mModuleNotFoundError\\u001b[0m: \\u001b[35mNo module named 'sqlalchemy'\\u001b[0m\\n\",\n      \"kind\": \"smoke\",\n      \"project\": \"animation\",\n      \"name\": \"animation_api_smoke_v19.py\",\n      \"status\": \"skipped_optional_dependency\"\n    }\n  ],\n  \"started_at\": \"2026-03-07 11:15:46\",\n  \"failed\": 0,\n  \"status\": \"passed\"\n}\n"
+    },
+    {
+      "cmd": [
+        "node",
+        "--check",
+        "tests/e2e/studio-e2e-matrix.spec.js"
+      ],
+      "cwd": "/mnt/data/v23_extract",
+      "returncode": 0,
+      "duration_sec": 0.15,
+      "output": ""
+    },
+    {
+      "cmd": [
+        "node",
+        "--check",
+        "tests/e2e/ugc-dashboard.spec.js"
+      ],
+      "cwd": "/mnt/data/v23_extract",
+      "returncode": 0,
+      "duration_sec": 0.15,
+      "output": ""
+    },
+    {
+      "cmd": [
+        "node",
+        "--check",
+        "tests/e2e/animation-workbench.spec.js"
+      ],
+      "cwd": "/mnt/data/v23_extract",
+      "returncode": 0,
+      "duration_sec": 0.15,
+      "output": ""
+    }
+  ],
+  "matrix_rows": [
+    {
+      "id": "add-character-btn",
+      "label": "新增角色",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "batch-render-btn",
+      "label": "批量生产多集",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-climax-plan",
+      "label": "高潮点编排",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-dialogue-style",
+      "label": "角色对白风格器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-emotion-arcs",
+      "label": "角色情绪弧线器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-foreshadow-plan",
+      "label": "反转前埋点器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-generate",
+      "label": "🚀 开始生成带货视频",
+      "page": "index.html",
+      "covered": true
+    },
+    {
+      "id": "btn-highlight-shots",
+      "label": "爆点镜头编排器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-load-relationship-graph",
+      "label": "关系图",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-load-scene-assets",
+      "label": "场景资产库",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-load-scene-flow",
+      "label": "场景流",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-load-state-machine",
+      "label": "角色状态机",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-logout",
+      "label": "退出",
+      "page": "index.html",
+      "covered": true
+    },
+    {
+      "id": "btn-outline",
+      "label": "剧情大纲编辑器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-payoff-strength",
+      "label": "回收强度评分器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-payoff-tracker",
+      "label": "线索回收追踪器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-punchlines",
+      "label": "爆点台词生成器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-scene-pacing",
+      "label": "分场节奏控制",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-scene-twists",
+      "label": "场景反转检测器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-season-conflict",
+      "label": "季级剧情冲突树",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-season-memory",
+      "label": "查看季度级记忆库",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-shot-emotion-filters",
+      "label": "镜头情绪滤镜器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "btn-suspense-keeper",
+      "label": "悬念保持器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "check-consistency-btn",
+      "label": "一致性检查",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "finale-payoff-plan-btn",
+      "label": "终局回收规划器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "load-templates-btn",
+      "label": "查看分镜模板库",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "next-episode-cold-open-btn",
+      "label": "下季首集冷开场",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "next-season-hook-planner-btn",
+      "label": "下季钩子规划器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "plan-btn",
+      "label": "先生成规划",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "refresh-btn",
+      "label": "刷新最近任务",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "render-btn",
+      "label": "直接开始生产",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "retry-shot-btn",
+      "label": "重试单镜头",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "season-suspense-chain-btn",
+      "label": "季级悬念链",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "season-trailer-generator-btn",
+      "label": "季终预告生成器",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "sync-json-btn",
+      "label": "同步到 JSON",
+      "page": "animation-studio.html",
+      "covered": true
+    },
+    {
+      "id": "trailer-editor-btn",
+      "label": "预告片剪辑器",
+      "page": "animation-studio.html",
+      "covered": true
+    }
+  ]
+}

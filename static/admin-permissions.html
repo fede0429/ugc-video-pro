@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>子账户权限页 — UGC Video Pro Studio</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+body{background:linear-gradient(180deg,#08111d 0%,#0d0d0f 100%)}
+.shell{max-width:1200px;margin:0 auto;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.panel{background:rgba(17,17,21,.78);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:16px}
+.user-item{padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);cursor:pointer;margin-bottom:10px;background:rgba(255,255,255,.03)}
+.user-item.active{border-color:#8b5cf6;background:rgba(139,92,246,.12)}
+.field{margin-bottom:12px}
+label{display:block;margin-bottom:6px;font-weight:600}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #293146;background:#0d1320;color:#fff}
+.checks{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:10px}
+.check{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:rgba(255,255,255,.04)}
+.muted{color:#9aa4b7;font-size:13px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+a.nav{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.08);text-decoration:none;color:#fff;background:rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div>
+      <h1>子账户权限页</h1>
+      <div class="muted">按用户配置项目访问、默认落地页和发布权限。</div>
+    </div>
+    <div class="btns">
+      <a class="nav" href="/index.html">项目1</a>
+      <a class="nav" href="/animation-studio.html">项目2</a>
+      <a class="nav" href="/admin.html">返回管理后台</a>
+    </div>
+  </div>
+  <div class="grid">
+    <section class="panel">
+      <div class="btns" style="margin-bottom:12px">
+        <button id="perm-refresh-btn">刷新列表</button>
+      </div>
+      <div id="perm-user-list"></div>
+    </section>
+    <section class="panel">
+      <div id="perm-empty" class="muted">选择左侧子账户开始编辑权限。</div>
+      <form id="perm-form" style="display:none">
+        <div class="field">
+          <label>用户</label>
+          <input id="perm-user-label" type="text" readonly>
+        </div>
+        <div class="checks">
+          <label class="check"><input type="checkbox" id="perm-access-ugc"> 访问项目1（UGC）</label>
+          <label class="check"><input type="checkbox" id="perm-access-animation"> 访问项目2（动画）</label>
+          <label class="check"><input type="checkbox" id="perm-access-testing"> 访问测试看板</label>
+          <label class="check"><input type="checkbox" id="perm-manage-publish"> 发布管理权限</label>
+        </div>
+        <div class="field">
+          <label>默认登录落地页</label>
+          <select id="perm-default-project">
+            <option value="ugc">项目1：UGC</option>
+            <option value="animation">项目2：动画</option>
+            <option value="admin">管理后台（仅管理员）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>权限备注</label>
+          <textarea id="perm-notes" rows="4" placeholder="例如：仅能看动画规划，不能发片。"></textarea>
+        </div>
+        <div class="btns">
+          <button type="submit">保存权限</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+<script src="js/api.js"></script>
+<script src="js/admin-permissions.js"></script>
+</body>
+</html>
