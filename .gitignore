@@ -34,6 +34,8 @@ config.yaml
 !config.example.yaml
 
 # Local data
+uploads/
+videos/
 projects/
 data/
 outputs/

@@ -95,6 +95,11 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+async def broadcast_progress(task_id: str, data: dict) -> None:
+    """Helper function to broadcast progress to a specific task's subscribers."""
+    await manager.broadcast(task_id, data)
+
+
 # ── WebSocket router ───────────────────────────────────────────────────────────────────
 router = APIRouter(tags=["websocket"])
 

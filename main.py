@@ -13,12 +13,12 @@ Usage:
     python main.py --host 0.0.0.0 --port 8080  # Override host/port
 
 Architecture:
-    main.py → FastAPI app (web/app.py)
-                ├── /api/auth/*     → JWT authentication
-                ├── /api/video/*    → Video generation endpoints
-                ├── /api/admin/*    → Admin management
-                ├── /api/ws/*       → WebSocket progress streams
-                └── /static/*       → HTML/JS/CSS frontend
+    main.py -> FastAPI app (web/app.py)
+                ├── /api/auth/*     -> JWT authentication
+                ├── /api/video/*    -> Video generation endpoints
+                ├── /api/admin/*    -> Admin management
+                ├── /api/ws/*       -> WebSocket progress streams
+                └── /static/*       -> HTML/JS/CSS frontend
 """
 
 import asyncio

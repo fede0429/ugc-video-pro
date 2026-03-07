@@ -167,12 +167,12 @@ def create_app(config: dict | None = None) -> FastAPI:
     from web.routes_admin import router as admin_router
     from web.routes_auth import router as auth_router
     from web.routes_video import router as video_router
-    from web.routes_animation import router as animation_router
+    # from web.routes_animation import router as animation_router
     from web.websocket import router as ws_router
 
     app.include_router(auth_router, prefix="/api/auth")
     app.include_router(video_router, prefix="/api/video")
-    app.include_router(animation_router)
+    # app.include_router(animation_router)
     app.include_router(admin_router, prefix="/api/admin")
 
     # WebSocket routes (no prefix — the path already starts with /progress)
